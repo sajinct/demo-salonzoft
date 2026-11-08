@@ -22,6 +22,7 @@ export class App {
   protected readonly language = inject(Language);
   protected readonly text = this.language.copy;
   protected reload(): void {
+    this.errors.failed.set(false);
     window.location.reload();
   }
   protected skip(event: Event): void {

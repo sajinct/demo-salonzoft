@@ -6,6 +6,21 @@ export const routes: Routes = [
     loadComponent: () => import('./features/foundation/overview').then((module) => module.Overview),
   },
   {
+    path: 'workspace',
+    redirectTo: '',
+    pathMatch: 'full',
+  },
+  {
+    path: 'features',
+    redirectTo: '',
+    pathMatch: 'full',
+  },
+  {
+    path: 'pricing',
+    redirectTo: '',
+    pathMatch: 'full',
+  },
+  {
     path: 'guide',
     title: 'Salonzoft · Workspace guide',
     loadComponent: () => import('./features/foundation/guide').then((module) => module.Guide),

@@ -9,9 +9,10 @@
       <span>✦ {{ text().badgeLedger }}</span>
     </div>
     <div class="actions">
-      <a mat-flat-button href="#workspace"
-        >{{ text().explore }} <span aria-hidden="true">↓</span></a
-      ><a mat-button routerLink="/guide">{{ text().learn }}</a>
+      <button mat-flat-button type="button" (click)="scrollTo('workspace')">
+        {{ text().explore }} <span aria-hidden="true">↓</span>
+      </button>
+      <a mat-button routerLink="/guide">{{ text().learn }}</a>
     </div>
   </div>
   <div class="brand-art">
@@ -277,7 +278,7 @@
         <li>{{ text().plan1Spec3 }}</li>
         <li>{{ text().plan1Spec4 }}</li>
       </ul>
-      <a mat-button href="#workspace">{{ text().planCta }}</a>
+      <button mat-button type="button" (click)="scrollTo('workspace')">{{ text().planCta }}</button>
     </article>
     <article class="price-card featured-plan">
       <span class="popular-pill">{{ text().pricingPopular }}</span>
@@ -293,7 +294,7 @@
         <li>{{ text().plan2Spec3 }}</li>
         <li>{{ text().plan2Spec4 }}</li>
       </ul>
-      <a mat-flat-button href="#workspace">{{ text().planCta }}</a>
+      <button mat-flat-button type="button" (click)="scrollTo('workspace')">{{ text().planCta }}</button>
     </article>
     <article class="price-card">
       <h3>{{ text().plan3Name }}</h3>
@@ -308,7 +309,7 @@
         <li>{{ text().plan3Spec3 }}</li>
         <li>{{ text().plan3Spec4 }}</li>
       </ul>
-      <a mat-button href="#workspace">{{ text().planCta }}</a>
+      <button mat-button type="button" (click)="scrollTo('workspace')">{{ text().planCta }}</button>
     </article>
   </div>
 </section>

@@ -143,6 +143,10 @@ export class Overview {
     this.billingCycle.set(cycle);
   }
 
+  protected scrollTo(sectionId: string): void {
+    document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
   protected select(): void {
     this.data.selectWorkspace(this.selection.value);
   }
