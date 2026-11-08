@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1254" height="1254" viewBox="0 0 1254 1254" fill="none" role="img" aria-labelledby="title desc">
+  <title id="title">Miznora app icon</title>
+  <desc id="desc">An emerald serif M entwined with a champagne gold ribbon and a woman's profile, beneath a luminous four-point star. An ivory tile is enclosed by a polished gold frame.</desc>
+  <defs>
+    <radialGradient id="canvas" cx="0.46" cy="0.38" r="0.8">
+      <stop stop-color="#FFFDF9"/><stop offset="1" stop-color="#F7F1EB"/>
+    </radialGradient>
+    <radialGradient id="ivory" cx="0.46" cy="0.35" r="0.76">
+      <stop stop-color="#FFFDFA"/><stop offset="0.57" stop-color="#FFF9F1"/><stop offset="1" stop-color="#F1DFC6"/>
+    </radialGradient>
+    <linearGradient id="emerald" x1="310" y1="432" x2="850" y2="937" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#005A38"/><stop offset="0.34" stop-color="#006340"/><stop offset="0.7" stop-color="#00452C"/><stop offset="1" stop-color="#003B29"/>
+    </linearGradient>
+    <radialGradient id="greenSheen" cx="0.6" cy="0.12" r="0.95">
+      <stop stop-color="#0C754C" stop-opacity="0.36"/><stop offset="1" stop-color="#003826" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="ribbon" x1="216" y1="863" x2="850" y2="385" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#B47717"/><stop offset="0.23" stop-color="#E3AF3E"/><stop offset="0.34" stop-color="#F7D46A"/><stop offset="0.45" stop-color="#D8A535"/><stop offset="0.58" stop-color="#FFF3AD"/><stop offset="0.72" stop-color="#E8BA4F"/><stop offset="0.86" stop-color="#D09A2D"/><stop offset="1" stop-color="#F2CD68"/>
+    </linearGradient>
+    <radialGradient id="hairLight" cx="642" cy="596" r="165" gradientUnits="userSpaceOnUse" gradientTransform="translate(642 596) rotate(24) scale(0.55 1.25) translate(-642 -596)">
+      <stop stop-color="#FFF6AF" stop-opacity="0.82"/><stop offset="1" stop-color="#FFF0A0" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="hairSilk" cx="367" cy="748" r="130" gradientUnits="userSpaceOnUse" gradientTransform="translate(367 748) scale(1 0.45) translate(-367 -748)">
+      <stop stop-color="#FFE993" stop-opacity="0.65"/><stop offset="1" stop-color="#FFE993" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="profile" x1="863" y1="433" x2="995" y2="794" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#9F6813"/><stop offset="0.23" stop-color="#B47C1A"/><stop offset="0.49" stop-color="#D8A636"/><stop offset="0.66" stop-color="#B6811B"/><stop offset="0.87" stop-color="#EAC465"/><stop offset="1" stop-color="#B98324"/>
+    </linearGradient>
+    <linearGradient id="rim" x1="95" y1="100" x2="1150" y2="1150" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#A66B16"/><stop offset="0.14" stop-color="#F6D989"/><stop offset="0.29" stop-color="#A16B15"/><stop offset="0.5" stop-color="#F9E8B4"/><stop offset="0.7" stop-color="#C28C2B"/><stop offset="0.87" stop-color="#A26B15"/><stop offset="1" stop-color="#E7C170"/>
+    </linearGradient>
+    <linearGradient id="rimLight" x1="111" y1="114" x2="1140" y2="1139" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFEEB6"/><stop offset="0.32" stop-color="#C18A26"/><stop offset="0.57" stop-color="#FFF5D1"/><stop offset="1" stop-color="#D6A13A"/>
+    </linearGradient>
+    <radialGradient id="star" cx="0.49" cy="0.51" r="0.56">
+      <stop stop-color="#FFFFF0"/><stop offset="0.17" stop-color="#FFF8BA"/><stop offset="0.48" stop-color="#EDC55C"/><stop offset="0.77" stop-color="#CF982B"/><stop offset="1" stop-color="#A96E15"/>
+    </radialGradient>
+    <radialGradient id="glint">
+      <stop stop-color="#FFFFFF" stop-opacity="0.95"/><stop offset="0.35" stop-color="#FFFFE5" stop-opacity="0.65"/><stop offset="1" stop-color="#FFFFD9" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="shadow" x="-15%" y="-12%" width="130%" height="140%" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="24" stdDeviation="20" flood-color="#654524" flood-opacity="0.28"/>
+      <feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#684C2C" flood-opacity="0.18"/>
+    </filter>
+    <path id="m" d="M264 406C322 378 391 378 438 407C487 437 516 487 543 535L601 639C580 680 548 714 510 725L360 469V722L338 725V486C338 440 316 414 264 406ZM337 785L361 781C362 865 382 909 457 925H243C304 910 329 870 337 785ZM529 765L596 905L754 606V828C753 883 736 910 683 925H961C872 905 834 849 822 759C813 691 812 615 818 554C825 479 852 423 907 388C847 397 800 431 768 474C729 526 713 577 684 634C648 705 605 746 529 765Z"/>
+  </defs>
+  <rect width="1254" height="1254" fill="url(#canvas)"/>
+  <rect x="100" y="100" width="1048" height="1048" rx="246" fill="url(#ivory)" filter="url(#shadow)"/>
+  <rect x="98" y="98" width="1052" height="1052" rx="248" stroke="#926014" stroke-width="2"/>
+  <rect x="101" y="101" width="1046" height="1046" rx="245" stroke="url(#rim)" stroke-width="8"/>
+  <rect x="104" y="104" width="1040" height="1040" rx="242" stroke="#FFF4CC" stroke-width="2"/>
+  <rect x="109" y="109" width="1030" height="1030" rx="237" stroke="url(#rimLight)" stroke-width="5"/>
+  <rect x="113" y="113" width="1022" height="1022" rx="233" stroke="#E6C987" stroke-width="1.5"/>
+  <!-- Separate contours retain the ivory breaks where the ribbon crosses the M. -->
+  <use href="#m" fill="url(#emerald)"/>
+  <use href="#m" fill="url(#greenSheen)"/>
+  <defs><path id="hair-flow" d="M202.5 880.5L203.4 879.3L203.5 872.5L206.2 856.2L211.6 837.6L220.2 818.2L233.1 798.1L244.7 783.7L259.7 769.7L278.1 756.1L297.5 745.5L317.8 737.8L332.1 734.1L364.5 729.5L394.5 729.5L468.5 736.5L508.5 736.5L523.4 734.4L538.9 724.9L553.3 713.3L568.3 698.3L579.9 683.9L591.8 665.8L606.5 637.5L637.7 556.7L649.5 529.5L661.2 506.2L675.3 482.3L694.7 456.7L711.7 439.7L729.1 426.1L748.2 414.2L768.7 404.7L787.8 397.8L811.1 392.1L844.5 387.5L857.4 387.4L857.5 386.5L862.9 387.2L832.7 396.7L814.2 405.2L800.3 413.3L774.7 432.7L752.7 455.7L742.1 469.1L734.1 481.1L720.2 505.2L709.5 526.5L672.5 613.5L654.6 647.6L643.9 663.9L631.3 680.3L620.3 692.3L601.9 707.9L581.6 721.6L560.5 732.5L534.2 742.2L516.1 747.1L464.6 756.6L393.5 762.5L358.3 767.3L325.8 774.8L299.5 784.5L280.2 794.2L270.3 800.3L249.7 815.7L233.7 831.7L221.1 848.1L214.2 859.2L204.2 880.8Z"/></defs>
+  <use href="#hair-flow" fill="url(#ribbon)"/>
+  <use href="#hair-flow" fill="url(#hairLight)"/>
+  <use href="#hair-flow" fill="url(#hairSilk)"/>
+  <!-- The profile is a tapered filled silhouette, including the neck and chin. -->
+  <path d="M890 407C920 422 939 451 948 479C955 502 969 516 1007 532C1026 539 1025 550 1016 565C1008 577 1007 582 1017 588C1027 594 1025 601 1017 609L1011 613C1026 615 1033 628 1021 636C1013 642 1017 650 1023 658C1041 684 1029 700 1000 704L962 709C921 716 891 739 880 774C869 809 877 844 888 869C863 838 848 806 851 771C854 729 876 701 918 696C950 692 984 696 1006 684C1025 675 1019 660 1013 651C1006 641 1008 636 1013 631C1001 629 994 626 985 621C995 610 1001 603 1007 595C995 589 995 581 1002 570C1009 559 1017 548 1009 543C992 535 970 525 956 512C941 499 938 484 933 470C925 443 911 422 890 407Z" fill="url(#profile)" stroke="#A5711B" stroke-width="0.8" stroke-linejoin="round"/>
+  <path d="M856 476C873 455 898 448 912 457C918 460 920 465 920 469C899 459 876 462 856 476Z" fill="url(#profile)" stroke="#A5711B" stroke-width="0.7"/>
+  <path d="M869 518C889 521 909 520 925 509C933 517 942 520 952 517C931 537 895 539 869 518Z" fill="url(#profile)" stroke="#9D6C19" stroke-width="0.7"/>
+  <path d="M838 202C845 263 854 276 922 288C856 299 845 312 838 370C830 312 819 299 755 288C820 278 831 263 838 202Z" fill="url(#star)" stroke="#AC781D" stroke-width="0.8"/>
+  <ellipse cx="838" cy="288" rx="29" ry="31" fill="url(#glint)"/>
+  <path d="M838 247C839 279 840 285 866 288C841 290 839 295 838 327C837 295 835 290 810 288C835 286 837 279 838 247Z" fill="#FFFEE9" opacity="0.75"/>
+</svg>

@@ -1,0 +1,20 @@
+{
+  "password": "MiznoraLocal!2026",
+  "users": {
+    "ownerA": { "id": "11111111-1111-4111-8111-000000000001", "email": "owner-a@miznora.example.test" },
+    "ownerB": { "id": "11111111-1111-4111-8111-000000000002", "email": "owner-b@miznora.example.test" },
+    "manager": { "id": "11111111-1111-4111-8111-000000000003", "email": "manager@miznora.example.test" },
+    "receptionist": { "id": "11111111-1111-4111-8111-000000000004", "email": "reception@miznora.example.test" },
+    "professional": { "id": "11111111-1111-4111-8111-000000000005", "email": "professional@miznora.example.test" },
+    "finance": { "id": "11111111-1111-4111-8111-000000000006", "email": "finance@miznora.example.test" },
+    "shared": { "id": "11111111-1111-4111-8111-000000000007", "email": "shared@miznora.example.test" },
+    "nonMember": { "id": "11111111-1111-4111-8111-000000000008", "email": "outsider@miznora.example.test" },
+    "invitee": { "id": "11111111-1111-4111-8111-000000000009", "email": "invitee@miznora.example.test" },
+    "unverified": { "id": "11111111-1111-4111-8111-000000000010", "email": "unverified@miznora.example.test" }
+  },
+  "businessA": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaa1",
+  "businessB": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbb1",
+  "locationA1": "a1000000-0000-4000-8000-000000000001",
+  "locationA2": "a1000000-0000-4000-8000-000000000002",
+  "locationB1": "b1000000-0000-4000-8000-000000000001"
+}

@@ -1,0 +1,159 @@
+{
+  "$schema": "../node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "cli": {
+    "packageManager": "npm"
+  },
+  "newProjectRoot": "projects",
+  "projects": {
+    "miznora": {
+      "projectType": "application",
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss"
+        }
+      },
+      "root": "",
+      "sourceRoot": "src",
+      "prefix": "app",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:application",
+          "options": {
+            "browser": "src/main.ts",
+            "tsConfig": "tsconfig.app.json",
+            "inlineStyleLanguage": "scss",
+            "assets": [
+              {
+                "glob": "**/*",
+                "input": "public/brand",
+                "output": "assets/brand"
+              },
+              {
+                "glob": "config.json",
+                "input": "public/app",
+                "output": "."
+              }
+            ],
+            "styles": [
+              "src/styles.scss"
+            ]
+          },
+          "configurations": {
+            "demo": {
+              "optimization": true,
+              "outputHashing": "all",
+              "sourceMap": false,
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "650kB",
+                  "maximumError": "900kB"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "6kB",
+                  "maximumError": "8kB"
+                }
+              ],
+              "outputPath": "../dist/demo",
+              "assets": [
+                {
+                  "glob": "**/*",
+                  "input": "public/brand",
+                  "output": "assets/brand"
+                }
+              ],
+              "fileReplacements": [
+                {
+                  "replace": "src/app/core/target.providers.ts",
+                  "with": "src/app/core/target.providers.demo.ts"
+                }
+              ]
+            },
+            "local": {
+              "optimization": false,
+              "outputHashing": "all",
+              "sourceMap": true,
+              "budgets": [],
+              "outputPath": "../dist/local",
+              "fileReplacements": [
+                {
+                  "replace": "src/app/core/app-environment.ts",
+                  "with": "src/app/core/app-environment.local.ts"
+                }
+              ]
+            },
+            "staging": {
+              "optimization": true,
+              "outputHashing": "all",
+              "sourceMap": false,
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "650kB",
+                  "maximumError": "900kB"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "6kB",
+                  "maximumError": "8kB"
+                }
+              ],
+              "outputPath": "../dist/staging",
+              "fileReplacements": [
+                {
+                  "replace": "src/app/core/app-environment.ts",
+                  "with": "src/app/core/app-environment.staging.ts"
+                }
+              ]
+            },
+            "production": {
+              "optimization": true,
+              "outputHashing": "all",
+              "sourceMap": false,
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "650kB",
+                  "maximumError": "900kB"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "6kB",
+                  "maximumError": "8kB"
+                }
+              ],
+              "outputPath": "../dist/production",
+              "fileReplacements": [
+                {
+                  "replace": "src/app/core/target.providers.ts",
+                  "with": "src/app/core/target.providers.production.ts"
+                }
+              ]
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular/build:dev-server",
+          "configurations": {
+            "demo": {
+              "buildTarget": "miznora:build:demo"
+            },
+            "local": {
+              "buildTarget": "miznora:build:local"
+            }
+          },
+          "defaultConfiguration": "demo"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "buildTarget": "miznora:build:local"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,335 @@
+<section class="hero">
+  <div class="hero-copy">
+    <p class="eyebrow">{{ text().foundation }}</p>
+    <h1>{{ text().title }}</h1>
+    <p class="intro">{{ text().intro }}</p>
+    <div class="hero-badges">
+      <span>✦ {{ text().badgeUptime }}</span>
+      <span>✦ {{ text().badgeLocations }}</span>
+      <span>✦ {{ text().badgeLedger }}</span>
+    </div>
+    <div class="actions">
+      <a mat-flat-button href="#workspace"
+        >{{ text().explore }} <span aria-hidden="true">↓</span></a
+      ><a mat-button routerLink="/guide">{{ text().learn }}</a>
+    </div>
+  </div>
+  <div class="brand-art">
+    <div class="product-window">
+      <div class="product-top">
+        <img src="assets/brand/app-icon.svg" alt="" width="30" height="30" />
+        <div>
+          <strong>Salonzoft</strong>
+          <small class="window-sub">{{
+            data.selected()
+              ? language.locale() === 'ar'
+                ? data.selected()!.arabicName
+                : data.selected()!.name
+              : 'Noura Studio'
+          }}</small>
+        </div>
+        <span class="window-badge">{{ text().demo }}</span>
+      </div>
+      <div class="preview-tabs" role="tablist">
+        <button
+          type="button"
+          class="preview-tab"
+          [class.active-tab]="previewTab() === 'calendar'"
+          (click)="setPreviewTab('calendar')"
+        >
+          {{ text().previewTabCalendar }}
+        </button>
+        <button
+          type="button"
+          class="preview-tab"
+          [class.active-tab]="previewTab() === 'pos'"
+          (click)="setPreviewTab('pos')"
+        >
+          {{ text().previewTabPos }}
+        </button>
+        <button
+          type="button"
+          class="preview-tab"
+          [class.active-tab]="previewTab() === 'crm'"
+          (click)="setPreviewTab('crm')"
+        >
+          {{ text().previewTabCrm }}
+        </button>
+      </div>
+      <div class="product-body">
+        @if (previewTab() === 'calendar') {
+          <div class="live-schedule">
+            @for (item of studioMetrics().schedule; track item.time) {
+              <div class="schedule-row">
+                <span class="slot-time" dir="ltr">{{ item.time }}</span>
+                <div class="slot-info">
+                  <strong>{{ language.locale() === 'ar' ? item.clientAr : item.clientEn }}</strong>
+                  <small>{{ language.locale() === 'ar' ? item.serviceAr : item.serviceEn }} · {{ language.locale() === 'ar' ? item.stylistAr : item.stylistEn }}</small>
+                </div>
+                <div class="slot-meta">
+                  <span class="slot-status" [attr.data-status]="item.status">
+                    {{
+                      item.status === 'inService'
+                        ? text().previewStatusInService
+                        : item.status === 'checkedIn'
+                          ? text().previewStatusCheckedIn
+                          : text().previewStatusConfirmed
+                    }}
+                  </span>
+                  <span class="slot-price" dir="ltr">{{ item.amount }}</span>
+                </div>
+              </div>
+            }
+          </div>
+        } @else if (previewTab() === 'pos') {
+          <div class="live-pos">
+            <div class="pos-header">
+              <strong>{{ text().previewPosTitle }}</strong>
+              <span dir="ltr">OMR</span>
+            </div>
+            <div class="pos-line">
+              <span>{{ text().previewPosItem1 }}</span>
+              <strong dir="ltr">44.000</strong>
+            </div>
+            <div class="pos-line">
+              <span>{{ text().previewPosItem2 }}</span>
+              <strong dir="ltr">21.000</strong>
+            </div>
+            <div class="pos-line discount">
+              <span>{{ text().previewPosItem3 }}</span>
+              <strong dir="ltr">-6.500</strong>
+            </div>
+            <div class="pos-total">
+              <div>
+                <span>{{ text().previewPosTotal }}</span>
+                <small>{{ text().previewPosMethod }}</small>
+              </div>
+              <strong dir="ltr">58.500 OMR</strong>
+            </div>
+          </div>
+        } @else {
+          <div class="live-crm">
+            <div class="crm-top">
+              <span class="crm-avatar">S</span>
+              <div>
+                <strong>{{ text().previewCrmName }}</strong>
+                <small>{{ text().previewCrmTier }}</small>
+              </div>
+            </div>
+            <div class="crm-box">
+              <span>{{ text().previewCrmFormulaLabel }}</span>
+              <p>{{ text().previewCrmFormulaValue }}</p>
+            </div>
+            <div class="crm-box">
+              <span>{{ text().previewCrmNoteLabel }}</span>
+              <p>{{ text().previewCrmNoteValue }}</p>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</section>
+@if (data.mode === 'demo') {
+  <section id="workspace" class="workspace-section">
+    <div>
+      <p class="eyebrow">SALONZOFT / {{ text().selected }}</p>
+      <h2>{{ text().context }}</h2>
+      <p class="muted">{{ text().contextIntro }}</p>
+      <div class="studio-kpi-grid">
+        <div class="kpi-box">
+          <span>{{ text().statBookings }}</span>
+          <strong dir="ltr">{{ studioMetrics().bookings }}</strong>
+        </div>
+        <div class="kpi-box">
+          <span>{{ text().statTicket }}</span>
+          <strong dir="ltr">{{ studioMetrics().avgTicket }}</strong>
+        </div>
+        <div class="kpi-box">
+          <span>{{ text().statRetention }}</span>
+          <strong dir="ltr">{{ studioMetrics().retention }}</strong>
+        </div>
+        <div class="kpi-box">
+          <span>{{ text().statChairs }}</span>
+          <strong dir="ltr">{{ studioMetrics().chairs }}</strong>
+        </div>
+      </div>
+    </div>
+    <div class="workspace-card">
+      @if (data.workspaces.length) {
+        <mat-form-field appearance="outline"
+          ><mat-label>{{ text().workspace }}</mat-label
+          ><mat-select [formControl]="selection" (selectionChange)="select()">
+            @for (workspace of data.workspaces; track workspace.id) {
+              <mat-option [value]="workspace.id">{{
+                language.locale() === 'ar' ? workspace.arabicName : workspace.name
+              }}</mat-option>
+            }
+          </mat-select></mat-form-field
+        >
+        @if (data.selected(); as workspace) {
+          <div class="workspace-name" aria-live="polite">
+            <span class="monogram" aria-hidden="true">{{ workspace.name.charAt(0) }}</span>
+            <div>
+              <h3>{{ language.locale() === 'ar' ? workspace.arabicName : workspace.name }}</h3>
+              <span lang="ar" dir="rtl">{{ workspace.arabicName }}</span>
+            </div>
+            <span class="sample-tag">{{ text().demo }}</span>
+          </div>
+          <dl>
+            <div>
+              <dt>{{ text().locations }}</dt>
+              <dd dir="ltr">{{ workspace.locations.join(' · ') }}</dd>
+            </div>
+            <div>
+              <dt>{{ text().timezone }}</dt>
+              <dd dir="ltr">{{ workspace.timeZone }}</dd>
+            </div>
+            <div>
+              <dt>{{ text().currency }}</dt>
+              <dd dir="ltr">{{ workspace.currency }}</dd>
+            </div>
+          </dl>
+        }
+        <div class="card-bottom">
+          <p>{{ text().memory }}</p>
+          <button mat-button (click)="reset()">{{ text().reset }}</button>
+        </div>
+      } @else {
+        <p role="status">{{ text().empty }}</p>
+      }
+    </div>
+  </section>
+}
+<section id="features" class="features-section">
+  <div class="section-head">
+    <p class="eyebrow">{{ text().featuresEyebrow }}</p>
+    <h2>{{ text().featuresTitle }}</h2>
+    <p class="muted">{{ text().featuresIntro }}</p>
+  </div>
+  <div class="features-grid">
+    <article class="feature-card">
+      <span class="feature-num">01</span>
+      <h3>{{ text().feat1Title }}</h3>
+      <p>{{ text().feat1Body }}</p>
+    </article>
+    <article class="feature-card">
+      <span class="feature-num">02</span>
+      <h3>{{ text().feat2Title }}</h3>
+      <p>{{ text().feat2Body }}</p>
+    </article>
+    <article class="feature-card">
+      <span class="feature-num">03</span>
+      <h3>{{ text().feat3Title }}</h3>
+      <p>{{ text().feat3Body }}</p>
+    </article>
+    <article class="feature-card">
+      <span class="feature-num">04</span>
+      <h3>{{ text().feat4Title }}</h3>
+      <p>{{ text().feat4Body }}</p>
+    </article>
+    <article class="feature-card">
+      <span class="feature-num">05</span>
+      <h3>{{ text().feat5Title }}</h3>
+      <p>{{ text().feat5Body }}</p>
+    </article>
+    <article class="feature-card">
+      <span class="feature-num">06</span>
+      <h3>{{ text().feat6Title }}</h3>
+      <p>{{ text().feat6Body }}</p>
+    </article>
+  </div>
+</section>
+<section id="pricing" class="pricing-section">
+  <div class="pricing-head">
+    <div>
+      <p class="eyebrow">{{ text().pricingEyebrow }}</p>
+      <h2>{{ text().pricingTitle }}</h2>
+    </div>
+    <div class="billing-toggle" role="group">
+      <button
+        type="button"
+        [class.active-billing]="billingCycle() === 'monthly'"
+        (click)="setBilling('monthly')"
+      >
+        {{ text().pricingBillingMonthly }}
+      </button>
+      <button
+        type="button"
+        [class.active-billing]="billingCycle() === 'annual'"
+        (click)="setBilling('annual')"
+      >
+        {{ text().pricingBillingAnnual }}
+      </button>
+    </div>
+  </div>
+  <div class="pricing-grid">
+    <article class="price-card">
+      <h3>{{ text().plan1Name }}</h3>
+      <p class="muted">{{ text().plan1Desc }}</p>
+      <div class="price-value" dir="ltr">
+        <strong>{{ billingCycle() === 'annual' ? '15' : '19' }} OMR</strong>
+        <span>{{ text().pricingPerMonth }}</span>
+      </div>
+      <ul>
+        <li>{{ text().plan1Spec1 }}</li>
+        <li>{{ text().plan1Spec2 }}</li>
+        <li>{{ text().plan1Spec3 }}</li>
+        <li>{{ text().plan1Spec4 }}</li>
+      </ul>
+      <a mat-button href="#workspace">{{ text().planCta }}</a>
+    </article>
+    <article class="price-card featured-plan">
+      <span class="popular-pill">{{ text().pricingPopular }}</span>
+      <h3>{{ text().plan2Name }}</h3>
+      <p class="muted">{{ text().plan2Desc }}</p>
+      <div class="price-value" dir="ltr">
+        <strong>{{ billingCycle() === 'annual' ? '31' : '39' }} OMR</strong>
+        <span>{{ text().pricingPerMonth }}</span>
+      </div>
+      <ul>
+        <li>{{ text().plan2Spec1 }}</li>
+        <li>{{ text().plan2Spec2 }}</li>
+        <li>{{ text().plan2Spec3 }}</li>
+        <li>{{ text().plan2Spec4 }}</li>
+      </ul>
+      <a mat-flat-button href="#workspace">{{ text().planCta }}</a>
+    </article>
+    <article class="price-card">
+      <h3>{{ text().plan3Name }}</h3>
+      <p class="muted">{{ text().plan3Desc }}</p>
+      <div class="price-value" dir="ltr">
+        <strong>{{ billingCycle() === 'annual' ? '59' : '75' }} OMR</strong>
+        <span>{{ text().pricingPerMonth }}</span>
+      </div>
+      <ul>
+        <li>{{ text().plan3Spec1 }}</li>
+        <li>{{ text().plan3Spec2 }}</li>
+        <li>{{ text().plan3Spec3 }}</li>
+        <li>{{ text().plan3Spec4 }}</li>
+      </ul>
+      <a mat-button href="#workspace">{{ text().planCta }}</a>
+    </article>
+  </div>
+</section>
+<section class="readiness">
+  <p class="eyebrow">{{ text().ready }}</p>
+  <h2>{{ text().readyIntro }}</h2>
+  <div class="pillars">
+    <article>
+      <span class="number">01</span>
+      <h3>{{ text().design }}</h3>
+      <p>{{ text().designBody }}</p>
+    </article>
+    <article>
+      <span class="number">02</span>
+      <h3>{{ text().modes }}</h3>
+      <p>{{ text().modesBody }}</p>
+    </article>
+    <article>
+      <span class="number">03</span>
+      <h3>{{ text().next }}</h3>
+      <p>{{ text().nextBody }}</p>
+    </article>
+  </div>
+</section>

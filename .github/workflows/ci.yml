@@ -1,0 +1,48 @@
+name: Foundation CI
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version-file: .node-version
+          cache: npm
+      - run: npm install --global npm@12.2.1 --ignore-scripts
+      - run: npm ci --no-audit --no-fund
+      - run: npm run quality
+      - run: npm run build:demo -- --base-path /phase-01-preview/
+      - run: npm run build:production -- --base-path /app-preview/
+      - run: npm run build:local && npm run build:staging -- --base-path /auth-preview/
+      - run: npm run check:demo
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+  database:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version-file: .node-version
+          cache: npm
+      - run: npm install --global npm@12.2.1 --ignore-scripts
+      - run: npm ci --no-audit --no-fund
+      - run: npm run db:start
+      - run: npm run db:reset
+      - run: npm run db:test
+      - run: npm run db:types && npm run typecheck
+      - if: always()
+        run: npm run db:stop
+      # A real local-stack job is prepared, not claimed to have run on GitHub.
+      # HTTP acceptance additionally uses explicit local public test configuration.

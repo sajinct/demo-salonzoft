@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024" fill="none" role="img" aria-labelledby="title desc"><title id="title">Salonzoft app icon</title><desc id="desc">Salonzoft salon and spa management. Sculpted emerald and champagne-gold hair flow, four-point beauty glow and luxury serif wordmark.</desc><defs>
+  <radialGradient id="szIvory" cx="0.46" cy="0.35" r="0.76">
+    <stop stop-color="#FFFDFA"/>
+    <stop offset="0.58" stop-color="#FBF8F1"/>
+    <stop offset="1" stop-color="#F1E2CA"/>
+  </radialGradient>
+  <linearGradient id="szEmerald" x1="48" y1="54" x2="152" y2="200" gradientUnits="userSpaceOnUse">
+    <stop stop-color="#056843"/>
+    <stop offset="0.45" stop-color="#005A38"/>
+    <stop offset="1" stop-color="#003B26"/>
+  </linearGradient>
+  <linearGradient id="szWordEmerald" x1="160" y1="380" x2="640" y2="480" gradientUnits="userSpaceOnUse">
+    <stop stop-color="#005A38"/>
+    <stop offset="0.55" stop-color="#00442B"/>
+    <stop offset="1" stop-color="#005234"/>
+  </linearGradient>
+  <linearGradient id="salonzoftGold" x1="38" y1="196" x2="178" y2="54" gradientUnits="userSpaceOnUse">
+    <stop stop-color="#A8741E"/>
+    <stop offset="0.24" stop-color="#D9A840"/>
+    <stop offset="0.48" stop-color="#F8DE8C"/>
+    <stop offset="0.68" stop-color="#D4A138"/>
+    <stop offset="0.86" stop-color="#FCEAA8"/>
+    <stop offset="1" stop-color="#B98528"/>
+  </linearGradient>
+  <linearGradient id="szRim" x1="12" y1="12" x2="244" y2="244" gradientUnits="userSpaceOnUse">
+    <stop stop-color="#A66D19"/>
+    <stop offset="0.18" stop-color="#F4D788"/>
+    <stop offset="0.38" stop-color="#A56E1B"/>
+    <stop offset="0.56" stop-color="#F9E7B2"/>
+    <stop offset="0.78" stop-color="#C28D2E"/>
+    <stop offset="1" stop-color="#E5BF6E"/>
+  </linearGradient>
+  <radialGradient id="szStar" cx="0.5" cy="0.5" r="0.56">
+    <stop stop-color="#FFFFF2"/>
+    <stop offset="0.22" stop-color="#FFF4B8"/>
+    <stop offset="0.55" stop-color="#E8BE54"/>
+    <stop offset="1" stop-color="#A87119"/>
+  </radialGradient>
+</defs><g transform="scale(4)"><rect width="256" height="256" rx="57" fill="url(#szIvory)"/><rect x="4" y="4" width="248" height="248" rx="54" fill="none" stroke="url(#szRim)" stroke-width="2.5"/><rect x="8" y="8" width="240" height="240" rx="50" fill="none" stroke="#E6CA82" stroke-width="0.9" opacity="0.75"/><g transform="translate(8 14)"><path d="M167 61C129 44 93 64 81 101C69 138 76 165 39 190C76 193 111 175 127 144C144 112 132 83 167 61Z" fill="url(#szEmerald)"/><path d="M161 63C131 53 102 71 91 103C80 135 84 159 54 182C79 180 103 165 116 140C131 112 128 84 161 63Z" fill="#0A754C" opacity="0.42"/><path d="M165 62C136 83 139 117 119 151C100 182 69 198 37 196C72 186 94 163 104 133C116 99 120 75 165 62Z" fill="url(#salonzoftGold)"/><path d="M163 65C131 86 131 122 111 155C94 182 68 196 42 198" fill="none" stroke="#DFB85C" stroke-width="1.2" stroke-linecap="round" opacity="0.85"/><path d="M183 29C185 43 189 47 203 49C189 51 185 55 183 69C181 55 177 51 163 49C177 47 181 43 183 29Z" fill="url(#szStar)" stroke="#B58225" stroke-width="0.5"/><path d="M183 39C184 46 185 48 192 49C185 50 184 52 183 59C182 52 181 50 174 49C181 48 182 46 183 39Z" fill="#FFFDF0" opacity="0.8"/></g></g></svg>

@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" fill="none" role="img" aria-labelledby="title desc">
+  <title id="title">Miznora app icon</title>
+  <desc id="desc">An emerald M with a flowing gold ribbon, a woman's profile, and a four-point star on a warm ivory rounded square.</desc>
+  <defs>
+    <linearGradient id="ivory" x1="60" y1="32" x2="452" y2="492" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFDF8"/>
+      <stop offset="1" stop-color="#F1E5D2"/>
+    </linearGradient>
+    <linearGradient id="emerald" x1="140" y1="153" x2="320" y2="379" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#086348"/>
+      <stop offset="1" stop-color="#003D2D"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="104" y1="300" x2="365" y2="148" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#A87324"/>
+      <stop offset="0.38" stop-color="#D6AD56"/>
+      <stop offset="0.65" stop-color="#F1D48A"/>
+      <stop offset="1" stop-color="#B8832E"/>
+    </linearGradient>
+    <linearGradient id="frame" x1="40" y1="40" x2="470" y2="470" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#E2BD70"/>
+      <stop offset="0.5" stop-color="#AF7E31"/>
+      <stop offset="1" stop-color="#D9B365"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="512" height="512" rx="112" fill="url(#ivory)"/>
+  <rect x="20" y="20" width="472" height="472" rx="94" stroke="url(#frame)" stroke-width="3"/>
+  <rect x="27" y="27" width="458" height="458" rx="87" stroke="#D8BA80" stroke-opacity="0.45"/>
+
+  <!-- The monogram is outlined geometry, with no font dependency. -->
+  <path d="M92 163C116 154 140 155 160 165L246 304L310 183C325 161 345 150 369 148C350 169 341 193 341 220V337C341 356 350 366 371 370H282C303 366 311 356 311 337V242L246 370H232L140 220V337C140 356 149 366 170 370H92C113 366 122 356 122 337V190C122 176 112 166 92 163Z" fill="url(#emerald)"/>
+
+  <!-- A single broad ribbon keeps the hair motif legible at icon sizes. -->
+  <path d="M86 315C101 276 126 267 166 272C200 277 218 264 237 231C260 189 280 151 335 143L357 142C309 158 297 200 274 242C250 285 220 299 179 293C138 287 111 290 86 315Z" fill="url(#gold)"/>
+
+  <!-- Open profile, eyebrow and eyelid echo the original brand artwork. -->
+  <path d="M367 161C380 174 384 189 386 202C388 211 400 218 407 224C411 228 410 231 404 234L398 237L404 245L399 251C406 258 405 267 399 272C393 277 380 275 370 279C356 285 352 300 352 316" stroke="#B88B39" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M363 202C371 195 379 196 384 202C376 199 370 199 363 202Z" fill="#A9782C"/>
+  <path d="M364 217C372 222 381 223 390 218C383 228 372 229 364 217Z" fill="#A9782C"/>
+
+  <path d="M352 82C355 104 363 112 385 115C363 118 355 126 352 148C349 126 341 118 319 115C341 112 349 104 352 82Z" fill="url(#gold)"/>
+</svg>

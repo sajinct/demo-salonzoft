@@ -1,0 +1,57 @@
+{
+  "name": "miznora-workspace",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "frontend"
+  ],
+  "packageManager": "npm@12.2.1",
+  "engines": {
+    "node": "24.22.1",
+    "npm": "12.2.1"
+  },
+  "scripts": {
+    "preinstall": "node scripts/check-toolchain.mjs",
+    "start": "node scripts/serve.mjs demo",
+    "start:app": "node scripts/serve.mjs local",
+    "assets:sync": "node scripts/sync-assets.mjs",
+    "build:demo": "node scripts/build.mjs demo",
+    "build:local": "node scripts/build.mjs local",
+    "build:staging": "node scripts/build.mjs staging",
+    "build:production": "node scripts/build.mjs production",
+    "lint": "eslint frontend/src scripts tests supabase/functions --max-warnings 0",
+    "typecheck": "tsc --noEmit -p frontend/tsconfig.app.json && tsc --noEmit -p frontend/tsconfig.spec.json",
+    "test": "npm run test:scripts && npm run test:unit",
+    "test:scripts": "node --test scripts/*.test.mjs",
+    "test:unit": "npm run test --workspace=@miznora/frontend -- --watch=false",
+    "test:e2e": "node scripts/e2e.mjs",
+    "check:demo": "node scripts/check-demo-artifact.mjs",
+    "check:secrets": "node scripts/check-secrets.mjs",
+    "quality": "npm run lint && npm run typecheck && npm run typecheck:edge && npm test && npm run test:db:embedded && npm run db:types:check && npm run check:secrets",
+    "db:status": "node scripts/database.mjs status --local",
+    "db:start": "node scripts/database.mjs start --local",
+    "db:stop": "node scripts/database.mjs stop --local",
+    "db:reset": "node scripts/database.mjs reset --local --confirm-local-reset",
+    "db:test": "node scripts/database.mjs test --local",
+    "db:types": "node scripts/database.mjs types --local",
+    "backend:release": "node scripts/backend-release.mjs",
+    "format": "prettier --write frontend/src scripts tests eslint.config.mjs playwright.config.ts",
+    "db:types:embedded": "node scripts/generate-database-types.mjs",
+    "db:types:check": "node scripts/generate-database-types.mjs --check",
+    "test:db:embedded": "node scripts/test-database-embedded.mjs",
+    "test:backend": "node scripts/test-backend-integration.mjs",
+    "typecheck:edge": "tsc --noEmit --strict --skipLibCheck --target ES2022 --module esnext --lib ES2022,DOM supabase/functions/_shared/authorize.ts"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@playwright/test": "1.64.1",
+    "angular-eslint": "22.6.0",
+    "eslint": "10.14.0",
+    "prettier": "3.9.10",
+    "supabase": "3.0.0",
+    "typescript-eslint": "8.72.1",
+    "@electric-sql/pglite": "0.5.14",
+    "@electric-sql/pglite-pgtap": "0.0.15"
+  },
+  "type": "module"
+}

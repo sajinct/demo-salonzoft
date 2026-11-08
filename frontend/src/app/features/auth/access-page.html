@@ -1,0 +1,201 @@
+<section class="access-page">
+  <div class="access-heading">
+    <div>
+      <p class="eyebrow">SALONZOFT / 02</p>
+      <h1>{{ text().accessTitle }}</h1>
+      <p>{{ text().accessBody }}</p>
+    </div>
+    <a mat-button routerLink="/businesses/select">{{ text().back }}</a>
+  </div>
+  @if (loading() || auth.state() === 'loading') {
+    <p role="status">{{ text().loading }}</p>
+  } @else if (!workspace()) {
+    <div class="permission-state" role="alert">
+      <h2>{{ text().denied }}</h2>
+      <p>{{ text().deniedBody }}</p>
+    </div>
+  } @else {
+    @if (failed()) {
+      <p role="alert" class="form-error">{{ text().error }}</p>
+      <button mat-button (click)="refresh()" [disabled]="busy()">{{ text().retry }}</button>
+    }
+    @if (saved()) {
+      <p role="status" class="success">{{ text().saved }}</p>
+    }
+    <div class="access-grid">
+      <article class="access-card">
+        <h2>{{ text().invite }}</h2>
+        <p>{{ text().inviteBody }}</p>
+        <form [formGroup]="inviteForm" (ngSubmit)="issue()" [attr.aria-busy]="busy()">
+          <mat-form-field appearance="outline"
+            ><mat-label>{{ text().email }}</mat-label
+            ><input
+              matInput
+              type="email"
+              dir="ltr"
+              autocomplete="off"
+              formControlName="email"
+              [readonly]="busy()"
+            /><mat-error>{{ text().invalid }}</mat-error></mat-form-field
+          >
+          <mat-form-field appearance="outline"
+            ><mat-label>{{ text().role }}</mat-label
+            ><mat-select formControlName="role">
+              @for (role of roles; track role) {
+                <mat-option [value]="role">{{ text()[role] }}</mat-option>
+              }
+            </mat-select></mat-form-field
+          >
+          <mat-form-field appearance="outline"
+            ><mat-label>{{ text().scope }}</mat-label
+            ><mat-select formControlName="scope"
+              ><mat-option value="all_locations">{{ text().all }}</mat-option
+              ><mat-option value="selected_locations">{{
+                text().selectedScope
+              }}</mat-option></mat-select
+            ></mat-form-field
+          >
+          @if (inviteForm.controls.scope.value === 'selected_locations') {
+            <mat-form-field appearance="outline"
+              ><mat-label>{{ text().locations }}</mat-label
+              ><mat-select multiple formControlName="locations">
+                @for (location of workspace()?.locations; track location.id) {
+                  <mat-option [value]="location.id">{{ location.name }}</mat-option>
+                }
+              </mat-select></mat-form-field
+            >
+          }
+          <button
+            mat-flat-button
+            [disabled]="
+              busy() ||
+              inviteForm.invalid ||
+              !scopeValid(inviteForm.controls.scope.value, inviteForm.controls.locations.value)
+            "
+          >
+            {{ busy() ? text().pending : text().invite }}
+          </button>
+        </form>
+        @if (link()) {
+          <mat-form-field appearance="outline"
+            ><mat-label>{{ text().invitationLink }}</mat-label
+            ><textarea matInput readonly dir="ltr" rows="5" [value]="link()"></textarea>
+          </mat-form-field>
+        }
+      </article>
+      <article class="access-card">
+        <h2>{{ text().save }}</h2>
+        <form [formGroup]="accessForm" (ngSubmit)="save()" [attr.aria-busy]="busy()">
+          <mat-form-field appearance="outline"
+            ><mat-label>{{ text().member }}</mat-label
+            ><mat-select formControlName="user" (selectionChange)="chooseMember()">
+              @for (member of members(); track member.user_id) {
+                @if (member.role_code !== 'owner') {
+                  <mat-option [value]="member.user_id">{{
+                    member.display_name || member.user_id
+                  }}</mat-option>
+                }
+              }
+            </mat-select></mat-form-field
+          >
+          <mat-form-field appearance="outline"
+            ><mat-label>{{ text().role }}</mat-label
+            ><mat-select formControlName="role">
+              @for (role of roles; track role) {
+                <mat-option [value]="role">{{ text()[role] }}</mat-option>
+              }
+            </mat-select></mat-form-field
+          >
+          <mat-form-field appearance="outline"
+            ><mat-label>{{ text().scope }}</mat-label
+            ><mat-select formControlName="scope"
+              ><mat-option value="all_locations">{{ text().all }}</mat-option
+              ><mat-option value="selected_locations">{{
+                text().selectedScope
+              }}</mat-option></mat-select
+            ></mat-form-field
+          >
+          @if (accessForm.controls.scope.value === 'selected_locations') {
+            <mat-form-field appearance="outline"
+              ><mat-label>{{ text().locations }}</mat-label
+              ><mat-select multiple formControlName="locations">
+                @for (location of workspace()?.locations; track location.id) {
+                  <mat-option [value]="location.id">{{ location.name }}</mat-option>
+                }
+              </mat-select></mat-form-field
+            >
+          }
+          <mat-checkbox formControlName="active">{{ text().active }}</mat-checkbox
+          ><button
+            mat-flat-button
+            [disabled]="
+              busy() ||
+              accessForm.invalid ||
+              (accessForm.controls.active.value &&
+                !scopeValid(accessForm.controls.scope.value, accessForm.controls.locations.value))
+            "
+          >
+            {{ text().save }}
+          </button>
+        </form>
+      </article>
+      <article class="access-card">
+        <h2>{{ text().transfer }}</h2>
+        <p>{{ text().transferBody }}</p>
+        <form [formGroup]="transferForm" (ngSubmit)="transfer()">
+          <mat-form-field appearance="outline"
+            ><mat-label>{{ text().member }}</mat-label
+            ><mat-select formControlName="user">
+              @for (member of members(); track member.user_id) {
+                @if (member.active && member.role_code !== 'owner') {
+                  <mat-option [value]="member.user_id">{{
+                    member.display_name || member.user_id
+                  }}</mat-option>
+                }
+              }
+            </mat-select></mat-form-field
+          >
+          <mat-checkbox formControlName="confirm">{{ text().transferConfirm }}</mat-checkbox
+          ><button mat-flat-button [disabled]="busy() || transferForm.invalid">
+            {{ text().transfer }}
+          </button>
+        </form>
+      </article>
+    </div>
+    <h2>{{ text().invitationList }}</h2>
+    <div class="invitation-table">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">{{ text().email }}</th>
+            <th scope="col">{{ text().role }}</th>
+            <th scope="col">{{ text().status }}</th>
+            <th scope="col">{{ text().revoke }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (invite of invitations(); track invite.id) {
+            <tr>
+              <td>
+                <bdi>{{ invite.email }}</bdi>
+              </td>
+              <td>{{ roleName(invite.role_code) }}</td>
+              <td>{{ invitationStatus(invite) }}</td>
+              <td>
+                @if (pending(invite)) {
+                  <button mat-button (click)="revoke(invite)" [disabled]="busy()">
+                    {{ text().revoke }}
+                  </button>
+                }
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="4">{{ text().noInvitations }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>

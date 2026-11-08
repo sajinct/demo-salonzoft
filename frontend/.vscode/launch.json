@@ -1,0 +1,11 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Miznora demo (run npm start at repository root first)",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://127.0.0.1:4200/"
+    }
+  ]
+}

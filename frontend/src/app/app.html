@@ -1,0 +1,61 @@
+<div [dir]="language.locale() === 'ar' ? 'rtl' : 'ltr'">
+  <a class="skip-link" href="#main" (click)="skip($event)">{{ text().skip }}</a>
+  <header class="header wrap">
+    <a class="brand" routerLink="/" aria-label="Salonzoft"><img src="assets/brand/logo-horizontal.svg" alt="" width="218" height="66" /></a>
+    <nav [attr.aria-label]="text().home">
+      @if (data.mode === 'app' && authEnabled) {
+        <a mat-button routerLink="/businesses/select">{{ text().account }}</a>
+      } @else {
+        <a
+          mat-button
+          routerLink="/"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: true }"
+          >{{ text().home }}</a
+        ><a mat-button routerLink="/guide" routerLinkActive="active">{{ text().guide }}</a>
+      }
+    </nav>
+    <button
+      mat-button
+      (click)="language.toggle()"
+      [attr.lang]="language.locale() === 'en' ? 'ar' : 'en'"
+    >
+      {{ text().language }}
+    </button>
+  </header>
+  <div class="notice">
+    <div class="wrap">
+      <strong><span class="dot"></span>{{ data.mode === 'demo' ? text().demo : text().app }}</strong
+      ><span>{{
+        data.mode === 'demo' ? text().notice : authEnabled ? text().appAuthNotice : text().appNotice
+      }}</span>
+    </div>
+  </div>
+  <main id="main" class="wrap" tabindex="-1">
+    @if (errors.failed()) {
+      <section class="status-panel" role="alert">
+        <p class="eyebrow">SALONZOFT</p>
+        <h1>{{ text().errorTitle }}</h1>
+        <p>{{ text().errorBody }}</p>
+        <button mat-flat-button (click)="reload()">{{ text().retry }}</button>
+      </section>
+    } @else if (data.mode === 'app' && config.state() === 'missing') {
+      <section class="status-panel" role="alert" data-testid="configuration-error">
+        <p class="eyebrow">SALONZOFT · APP</p>
+        <h1>{{ text().missingTitle }}</h1>
+        <p>{{ text().missingBody }}</p>
+        <p class="muted">{{ text().missingHint }}</p>
+        <button mat-flat-button (click)="reload()">{{ text().retry }}</button>
+      </section>
+    } @else if (data.mode === 'app' && config.state() === 'loading') {
+      <p role="status">{{ text().loading }}</p>
+    } @else {
+      <router-outlet />
+    }
+  </main>
+  <footer class="wrap">
+    <span class="footer-brand"
+      >Salonzoft <span>· {{ text().footer }}</span></span
+    ><small>{{ data.mode === 'app' && authEnabled ? text().appAuthPhase : text().phase }}</small>
+  </footer>
+</div>

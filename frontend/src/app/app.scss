@@ -1,0 +1,131 @@
+.header {
+  min-height: 88px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+.brand {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  text-decoration: none;
+  color: var(--emerald);
+  font:
+    30px Georgia,
+    serif;
+}
+.brand small {
+  display: block;
+  font:
+    9px Arial,
+    sans-serif;
+  letter-spacing: 3px;
+  margin-top: 4px;
+}
+nav {
+  display: flex;
+  gap: 10px;
+}
+.active {
+  background: #edf2e9;
+}
+.notice {
+  background: #f1f3ed;
+  border-block: 1px solid #dfe6d6;
+  font-size: 12px;
+}
+.notice .wrap {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding-block: 14px;
+}
+.notice strong {
+  white-space: nowrap;
+  font-size: 12px;
+  color: var(--emerald);
+}
+.dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--emerald);
+  margin-inline-end: 8px;
+}
+footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding-block: 32px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+}
+.footer-brand {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  font-weight: 650;
+  color: var(--emerald);
+}
+.footer-brand span {
+  font:
+    12px Arial,
+    sans-serif;
+  color: var(--muted);
+}
+.status-panel {
+  margin: 80px auto;
+  max-width: 680px;
+  padding: 42px;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+.status-panel h1 {
+  font-size: 38px;
+}
+.status-panel p {
+  line-height: 1.8;
+}
+.skip-link {
+  position: absolute;
+  inset-inline-start: 20px;
+  top: -80px;
+  background: white;
+  padding: 14px;
+  z-index: 10;
+}
+.skip-link:focus {
+  top: 10px;
+}
+@media (max-width: 680px) {
+  .header {
+    min-height: 100px;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding-block: 16px;
+  }
+  .brand {
+    font-size: 25px;
+  }
+  nav {
+    order: 3;
+    width: 100%;
+    justify-content: center;
+  }
+  .notice .wrap {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 6px;
+  }
+  footer {
+    flex-direction: column;
+  }
+  .status-panel {
+    padding: 24px;
+    margin-block: 40px;
+  }
+}
+
+.brand img { display: block; width: 218px; height: auto; }
+@media (max-width: 680px) { .brand img { width: 190px; } }

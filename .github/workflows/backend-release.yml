@@ -1,0 +1,40 @@
+name: Backend migration plan (manual, no apply)
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Protected backend environment
+        type: choice
+        options: [staging, production]
+        required: true
+      project_ref:
+        description: Exact project reference; must match the selected environment variable
+        type: string
+        required: true
+permissions:
+  contents: read
+jobs:
+  plan:
+    if: github.ref == format('refs/heads/{0}', github.event.repository.default_branch)
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version-file: .node-version
+          cache: npm
+      - run: npm install --global npm@12.2.1 --ignore-scripts
+      - run: npm ci --no-audit --no-fund
+      - name: Plan explicit target only
+        env:
+          RELEASE_ENVIRONMENT: ${{ inputs.environment }}
+          RELEASE_PROJECT_REF: ${{ inputs.project_ref }}
+          SUPABASE_PROJECT_REF: ${{ vars.SUPABASE_PROJECT_REF }}
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+        run: npm run backend:release -- --environment "$RELEASE_ENVIRONMENT" --project-ref "$RELEASE_PROJECT_REF"
+      # No apply/deploy/reset path exists. Phase 02 supplies migrations/tests;
+      # a later authorized release phase supplies reviewed remote application.

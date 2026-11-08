@@ -1,0 +1,57 @@
+<section class="access-page">
+  <div class="access-heading">
+    <div>
+      <p class="eyebrow">SALONZOFT / 02</p>
+      <h1>{{ text().businesses }}</h1>
+      <p>{{ text().businessesBody }}</p>
+    </div>
+    <button mat-button (click)="signout()" [disabled]="busy()">{{ text().signout }}</button>
+  </div>
+  @if (context.state() === 'loading') {
+    <p role="status">{{ text().loading }}</p>
+  } @else if (context.state() === 'error') {
+    <div role="alert" class="permission-state">
+      <p>{{ text().unavailable }}</p>
+      <button mat-flat-button (click)="reload()">{{ text().retry }}</button>
+    </div>
+  } @else {
+    @if (!context.workspaces().length) {
+      <p role="status" class="permission-state">{{ text().empty }}</p>
+    }
+    <div class="workspace-list">
+      @for (workspace of context.workspaces(); track workspace.id) {
+        <article class="access-card">
+          <p class="role-label">
+            {{ text()[workspace.role] }} · {{ statusName(workspace.status) }}
+          </p>
+          <h2>{{ workspace.name }}</h2>
+          <h3>{{ text().locations }}</h3>
+          <ul>
+            @for (location of workspace.locations; track location.id) {
+              <li>{{ location.name }}</li>
+            } @empty {
+              <li>{{ text().noLocations }}</li>
+            }
+          </ul>
+          <div class="actions">
+            <button mat-flat-button (click)="select(workspace.id)" [disabled]="busy()">
+              {{ text().open }}
+            </button>
+            @if (workspace.role === 'owner') {
+              <a mat-button [routerLink]="['/access', workspace.id]">{{ text().manage }}</a>
+            }
+          </div>
+        </article>
+      }
+    </div>
+    @if (context.selected(); as workspace) {
+      <p role="status" class="success">
+        {{ text().selected }}: {{ workspace.name }} · {{ text()[workspace.role] }}
+      </p>
+    }
+    <div class="actions">
+      <a mat-button routerLink="/businesses/create">{{ text().create }}</a
+      ><a mat-button routerLink="/invitations/accept">{{ text().accept }}</a>
+    </div>
+  }
+</section>
