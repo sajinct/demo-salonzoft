@@ -253,6 +253,283 @@ button:focus-visible {
   line-height: 1.5;
 }
 
+/* Public Client Booking & Staff Operations Portal */
+.portal-section {
+  padding-block: 56px;
+  border-top: 1px solid var(--line);
+}
+.booking-layout,
+.pos-portal-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: 28px;
+  align-items: start;
+}
+.menu-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+.service-item-card {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 10px;
+}
+.svc-top,
+.svc-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+.svc-cat {
+  font-size: 10px;
+  font-weight: 700;
+  color: #806021;
+  background: #f9f3e3;
+  padding: 3px 8px;
+  border-radius: 99px;
+}
+.svc-duration {
+  font-size: 11px;
+  color: var(--muted);
+}
+.service-item-card h3 {
+  font-size: 15px;
+  margin: 0;
+  line-height: 1.35;
+}
+.svc-bottom strong {
+  font-size: 14px;
+  color: var(--emerald);
+}
+.svc-pick-btn {
+  border: 1px solid #c89a3b;
+  background: #fdfaf2;
+  color: #806021;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 5px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.svc-pick-btn:hover {
+  background: #f5ebd1;
+}
+.salon-form-card {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: 0 12px 28px #003b2608;
+}
+.salon-form-card h3 {
+  margin: 0 0 4px;
+  font-size: 19px;
+}
+.booking-alert {
+  background: #edf5ef;
+  border: 1px solid #9ec4aa;
+  border-radius: 8px;
+  padding: 10px 14px;
+  color: var(--emerald);
+  font-size: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.form-row-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+.form-row-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.field-box {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.field-box span {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+}
+.field-box input,
+.field-box select {
+  width: 100%;
+  padding: 9px 11px;
+  border: 1px solid #cfd6c8;
+  border-radius: 6px;
+  font: inherit;
+  font-size: 13px;
+  background: #fcfcfa;
+  color: var(--charcoal);
+}
+.check-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 13px;
+  cursor: pointer;
+}
+.portal-hint {
+  font-size: 12px;
+  color: #806021;
+  font-weight: 600;
+  margin: 0 0 16px;
+}
+.staff-appointments-list,
+.receipts-stack,
+.crm-cards-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.staff-apt-card {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 16px 18px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  justify-content: space-between;
+}
+.apt-time-col {
+  background: #edf2e9;
+  color: var(--emerald);
+  padding: 8px 12px;
+  border-radius: 8px;
+  text-align: center;
+  min-width: 78px;
+}
+.apt-time-col strong {
+  display: block;
+  font-size: 14px;
+}
+.apt-time-col small {
+  font-size: 10px;
+  color: var(--muted);
+}
+.apt-main-col {
+  flex: 1;
+  min-width: 0;
+}
+.apt-main-col strong {
+  font-size: 14px;
+  color: var(--charcoal);
+}
+.apt-phone {
+  font-weight: 400;
+  font-size: 12px;
+  color: var(--muted);
+}
+.apt-main-col p {
+  margin: 4px 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+.apt-note {
+  display: inline-block;
+  font-size: 11px;
+  color: #806021;
+  background: #f9f3e3;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+.apt-action-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+.apt-action-col strong {
+  font-size: 14px;
+  color: var(--emerald);
+}
+.status-action-btn {
+  border: 1px solid #b8ccb9;
+  background: #edf2e9;
+  color: var(--emerald);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 6px 11px;
+  border-radius: 99px;
+  cursor: pointer;
+}
+.status-action-btn[data-status='inService'] {
+  background: #f9f1dc;
+  border-color: #e3ca8b;
+  color: #806021;
+}
+.status-action-btn[data-status='completed'] {
+  background: #005a38;
+  border-color: #005a38;
+  color: #ffffff;
+}
+.register-summary-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.register-total-pill {
+  background: #edf2e9;
+  border: 1px solid #c5d6c2;
+  padding: 8px 12px;
+  border-radius: 8px;
+}
+.register-total-pill span {
+  display: block;
+  font-size: 10px;
+  color: var(--muted);
+}
+.register-total-pill strong {
+  font-size: 15px;
+  color: var(--emerald);
+}
+.receipt-item {
+  border: 1px solid #e9ede4;
+  background: #fafaf7;
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+.receipt-item p {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+.receipt-right {
+  text-align: end;
+  flex-shrink: 0;
+}
+.receipt-right strong {
+  display: block;
+  color: var(--emerald);
+  font-size: 13px;
+}
+.receipt-right small {
+  font-size: 10px;
+  color: var(--muted);
+}
+
 /* Studio KPIs */
 .studio-kpi-grid {
   display: grid;
@@ -497,7 +774,9 @@ body .mat-mdc-unelevated-button {
 }
 @media (max-width: 850px) {
   .features-grid,
-  .pricing-grid {
+  .pricing-grid,
+  .booking-layout,
+  .pos-portal-grid {
     grid-template-columns: 1fr;
   }
 }
@@ -506,13 +785,20 @@ body .mat-mdc-unelevated-button {
     width: calc(100% - 36px);
   }
   .guide-grid,
-  .studio-kpi-grid {
+  .studio-kpi-grid,
+  .menu-grid,
+  .form-row-2,
+  .form-row-3 {
     grid-template-columns: 1fr;
   }
   .guide-page {
     padding-block: 36px;
   }
-  .schedule-row {
+  .schedule-row,
+  .staff-apt-card {
+    flex-wrap: wrap;
+  }
+  .billing-toggle {
     flex-wrap: wrap;
   }
 }

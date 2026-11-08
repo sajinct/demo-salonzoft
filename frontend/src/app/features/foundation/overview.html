@@ -9,8 +9,11 @@
       <span>✦ {{ text().badgeLedger }}</span>
     </div>
     <div class="actions">
-      <button mat-flat-button type="button" (click)="scrollTo('workspace')">
+      <button mat-flat-button type="button" (click)="scrollTo('booking')">
         {{ text().explore }} <span aria-hidden="true">↓</span>
+      </button>
+      <button mat-button type="button" (click)="scrollTo('staff-portal')">
+        {{ text().staffCta }}
       </button>
       <a mat-button routerLink="/guide">{{ text().learn }}</a>
     </div>
@@ -60,12 +63,15 @@
       <div class="product-body">
         @if (previewTab() === 'calendar') {
           <div class="live-schedule">
-            @for (item of studioMetrics().schedule; track item.time) {
+            @for (item of salon.appointments().slice(0, 3); track item.id) {
               <div class="schedule-row">
                 <span class="slot-time" dir="ltr">{{ item.time }}</span>
                 <div class="slot-info">
-                  <strong>{{ language.locale() === 'ar' ? item.clientAr : item.clientEn }}</strong>
-                  <small>{{ language.locale() === 'ar' ? item.serviceAr : item.serviceEn }} · {{ language.locale() === 'ar' ? item.stylistAr : item.stylistEn }}</small>
+                  <strong>{{ item.clientName }}</strong>
+                  <small
+                    >{{ language.locale() === 'ar' ? item.serviceAr : item.serviceEn }} ·
+                    {{ language.locale() === 'ar' ? item.stylistAr : item.stylistEn }}</small
+                  >
                 </div>
                 <div class="slot-meta">
                   <span class="slot-status" [attr.data-status]="item.status">
@@ -74,10 +80,12 @@
                         ? text().previewStatusInService
                         : item.status === 'checkedIn'
                           ? text().previewStatusCheckedIn
-                          : text().previewStatusConfirmed
+                          : item.status === 'completed'
+                            ? text().previewStatusCompleted
+                            : text().previewStatusConfirmed
                     }}
                   </span>
-                  <span class="slot-price" dir="ltr">{{ item.amount }}</span>
+                  <span class="slot-price" dir="ltr">{{ item.price.toFixed(3) }} OMR</span>
                 </div>
               </div>
             }
@@ -131,7 +139,309 @@
     </div>
   </div>
 </section>
+
 @if (data.mode === 'demo') {
+<!-- 1. PUBLIC CLIENT ONLINE BOOKING & SERVICE MENU -->
+<section id="booking" class="portal-section">
+  <div class="section-head">
+    <p class="eyebrow">{{ text().bookingEyebrow }}</p>
+    <h2>{{ text().bookingTitle }}</h2>
+    <p class="muted">{{ text().bookingIntro }}</p>
+  </div>
+  <div class="booking-layout">
+    <div class="menu-grid">
+      @for (svc of salon.config.services; track svc.code) {
+        <article class="service-item-card">
+          <div class="svc-top">
+            <span class="svc-cat">{{
+              language.locale() === 'ar' ? svc.categoryAr : svc.categoryEn
+            }}</span>
+            <span class="svc-duration" dir="ltr">{{ svc.durationMin }} min</span>
+          </div>
+          <h3>{{ language.locale() === 'ar' ? svc.nameAr : svc.nameEn }}</h3>
+          <div class="svc-bottom">
+            <strong dir="ltr">{{ svc.price.toFixed(3) }} {{ salon.config.currency }}</strong>
+            <button
+              type="button"
+              class="svc-pick-btn"
+              (click)="chooseServiceForBooking(svc.code)"
+            >
+              {{ text().selectForBooking }}
+            </button>
+          </div>
+        </article>
+      }
+    </div>
+
+    <form id="booking-form" class="salon-form-card" [formGroup]="bookingForm" (ngSubmit)="submitOnlineBooking()">
+      <h3>{{ text().bookingFormTitle }}</h3>
+      @if (salon.lastBookedRef(); as ref) {
+        <div class="booking-alert" role="status">
+          <strong>✦ {{ text().bookingConfirmedBanner }}: {{ ref }}</strong>
+          <span>{{ text().bookingSyncedNote }}</span>
+        </div>
+      }
+      <div class="form-row-2">
+        <label class="field-box">
+          <span>{{ text().bookingBranchLabel }}</span>
+          <select formControlName="branch">
+            @for (b of salon.config.branches; track b) {
+              <option [value]="b">{{ b }}</option>
+            }
+          </select>
+        </label>
+        <label class="field-box">
+          <span>{{ text().bookingServiceLabel }}</span>
+          <select formControlName="serviceCode">
+            @for (svc of salon.config.services; track svc.code) {
+              <option [value]="svc.code">
+                {{ language.locale() === 'ar' ? svc.nameAr : svc.nameEn }} ({{ svc.price }} OMR)
+              </option>
+            }
+          </select>
+        </label>
+      </div>
+      <div class="form-row-3">
+        <label class="field-box">
+          <span>{{ text().bookingStylistLabel }}</span>
+          <select formControlName="stylistId">
+            @for (st of salon.config.stylists; track st.id) {
+              <option [value]="st.id">
+                {{ language.locale() === 'ar' ? st.nameAr : st.nameEn }}
+              </option>
+            }
+          </select>
+        </label>
+        <label class="field-box">
+          <span>{{ text().bookingDateLabel }}</span>
+          <input type="date" formControlName="date" />
+        </label>
+        <label class="field-box">
+          <span>{{ text().bookingTimeLabel }}</span>
+          <select formControlName="time">
+            @for (slot of salon.config.timeSlots; track slot) {
+              <option [value]="slot">{{ slot }}</option>
+            }
+          </select>
+        </label>
+      </div>
+      <div class="form-row-2">
+        <label class="field-box">
+          <span>{{ text().bookingNameLabel }}</span>
+          <input
+            type="text"
+            formControlName="clientName"
+            [placeholder]="text().bookingNamePlaceholder"
+          />
+        </label>
+        <label class="field-box">
+          <span>{{ text().bookingPhoneLabel }}</span>
+          <input
+            type="tel"
+            formControlName="clientPhone"
+            [placeholder]="text().bookingPhonePlaceholder"
+          />
+        </label>
+      </div>
+      <label class="field-box">
+        <span>{{ text().bookingNotesLabel }}</span>
+        <input
+          type="text"
+          formControlName="notes"
+          [placeholder]="text().bookingNotesPlaceholder"
+        />
+      </label>
+      <button mat-flat-button type="submit">{{ text().bookingSubmit }}</button>
+    </form>
+  </div>
+</section>
+
+<!-- 2. STAFF & RECEPTION OPERATIONS PORTAL -->
+<section id="staff-portal" class="portal-section">
+  <div class="pricing-head">
+    <div>
+      <p class="eyebrow">{{ text().staffEyebrow }}</p>
+      <h2>{{ text().staffTitle }}</h2>
+      <p class="muted">{{ text().staffIntro }}</p>
+    </div>
+    <div class="billing-toggle" role="tablist">
+      <button
+        type="button"
+        [class.active-billing]="staffTab() === 'calendar'"
+        (click)="setStaffTab('calendar')"
+      >
+        {{ text().staffTabCalendar }} ({{ salon.appointments().length }})
+      </button>
+      <button
+        type="button"
+        [class.active-billing]="staffTab() === 'pos'"
+        (click)="setStaffTab('pos')"
+      >
+        {{ text().staffTabPos }}
+      </button>
+      <button
+        type="button"
+        [class.active-billing]="staffTab() === 'crm'"
+        (click)="setStaffTab('crm')"
+      >
+        {{ text().staffTabCrm }} ({{ salon.clients().length }})
+      </button>
+    </div>
+  </div>
+
+  @if (staffTab() === 'calendar') {
+    <p class="portal-hint">✦ {{ text().staffAdvanceHint }}</p>
+    <div class="staff-appointments-list">
+      @for (apt of salon.appointments(); track apt.id) {
+        <div class="staff-apt-card">
+          <div class="apt-time-col" dir="ltr">
+            <strong>{{ apt.time }}</strong>
+            <small>{{ apt.refCode }}</small>
+          </div>
+          <div class="apt-main-col">
+            <strong>{{ apt.clientName }} <span class="apt-phone" dir="ltr">· {{ apt.clientPhone }}</span></strong>
+            <p>
+              {{ language.locale() === 'ar' ? apt.serviceAr : apt.serviceEn }} ·
+              {{ language.locale() === 'ar' ? apt.stylistAr : apt.stylistEn }} ·
+              <span>{{ apt.branch }}</span>
+            </p>
+            @if (apt.notes) {
+              <small class="apt-note">{{ apt.notes }}</small>
+            }
+          </div>
+          <div class="apt-action-col">
+            <strong dir="ltr">{{ apt.price.toFixed(3) }} OMR</strong>
+            <button
+              type="button"
+              class="status-action-btn"
+              [attr.data-status]="apt.status"
+              (click)="advanceStatus(apt.id)"
+            >
+              {{
+                apt.status === 'inService'
+                  ? text().previewStatusInService
+                  : apt.status === 'checkedIn'
+                    ? text().previewStatusCheckedIn
+                    : apt.status === 'completed'
+                      ? text().previewStatusCompleted
+                      : text().previewStatusConfirmed
+              }}
+              · {{ text().staffAdvanceBtn }}
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  } @else if (staffTab() === 'pos') {
+    <div class="pos-portal-grid">
+      <form class="salon-form-card" [formGroup]="posForm" (ngSubmit)="submitPosCheckout()">
+        <h3>{{ text().staffPosFormTitle }}</h3>
+        <label class="field-box">
+          <span>{{ text().staffPosClientLabel }}</span>
+          <input type="text" formControlName="clientName" />
+        </label>
+        <label class="field-box">
+          <span>{{ text().staffPosServiceLabel }}</span>
+          <select formControlName="serviceCode">
+            @for (svc of salon.config.services; track svc.code) {
+              <option [value]="svc.code">
+                {{ language.locale() === 'ar' ? svc.nameAr : svc.nameEn }} ({{ svc.price.toFixed(3) }} OMR)
+              </option>
+            }
+          </select>
+        </label>
+        <label class="check-row">
+          <input type="checkbox" formControlName="includeRetailMask" />
+          <span>{{ text().staffPosRetailLabel }}</span>
+        </label>
+        <label class="check-row">
+          <input type="checkbox" formControlName="applyVipDiscount" />
+          <span>{{ text().staffPosVipLabel }}</span>
+        </label>
+        <label class="field-box">
+          <span>{{ text().staffPosMethodLabel }}</span>
+          <select formControlName="method">
+            <option value="Card">Card</option>
+            <option value="Cash">Cash</option>
+            <option value="Split">Split (Card + Wallet)</option>
+          </select>
+        </label>
+        <button mat-flat-button type="submit">{{ text().staffPosSubmit }}</button>
+      </form>
+
+      <div class="salon-form-card">
+        <div class="register-summary-head">
+          <h3>{{ text().staffPosReceiptsTitle }}</h3>
+          <div class="register-total-pill">
+            <span>{{ text().staffPosRevenueLabel }}</span>
+            <strong dir="ltr">{{ salon.todayRevenue() }} OMR</strong>
+          </div>
+        </div>
+        <div class="receipts-stack">
+          @for (rc of salon.receipts(); track rc.id) {
+            <div class="receipt-item">
+              <div>
+                <strong>{{ rc.clientName }} <small dir="ltr">({{ rc.receiptNo }})</small></strong>
+                <p>{{ language.locale() === 'ar' ? rc.summaryAr : rc.summaryEn }}</p>
+              </div>
+              <div class="receipt-right" dir="ltr">
+                <strong>{{ rc.netTotal.toFixed(3) }} OMR</strong>
+                <small>{{ rc.method }} · {{ rc.time }}</small>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  } @else {
+    <div class="pos-portal-grid">
+      <div class="crm-cards-stack">
+        @for (client of salon.clients(); track client.id) {
+          <article class="salon-form-card crm-record-card">
+            <div class="crm-top">
+              <span class="crm-avatar">{{ client.name.charAt(0) }}</span>
+              <div>
+                <strong>{{ client.name }}</strong>
+                <small>{{ language.locale() === 'ar' ? client.tierAr : client.tierEn }} · <span dir="ltr">{{ client.phone }}</span></small>
+              </div>
+            </div>
+            <div class="crm-box">
+              <span>{{ text().previewCrmFormulaLabel }}</span>
+              <p>{{ client.formula }}</p>
+            </div>
+            <div class="crm-box">
+              <span>{{ text().previewCrmNoteLabel }}</span>
+              <p>{{ client.notes }}</p>
+            </div>
+          </article>
+        }
+      </div>
+
+      <form class="salon-form-card" [formGroup]="crmForm" (ngSubmit)="submitCrmFormula()">
+        <h3>{{ text().staffCrmFormTitle }}</h3>
+        <label class="field-box">
+          <span>{{ text().bookingNameLabel }}</span>
+          <input type="text" formControlName="name" [placeholder]="text().bookingNamePlaceholder" />
+        </label>
+        <label class="field-box">
+          <span>{{ text().bookingPhoneLabel }}</span>
+          <input type="tel" formControlName="phone" [placeholder]="text().bookingPhonePlaceholder" />
+        </label>
+        <label class="field-box">
+          <span>{{ text().previewCrmFormulaLabel }}</span>
+          <input type="text" formControlName="formula" [placeholder]="text().staffCrmFormulaPlaceholder" />
+        </label>
+        <label class="field-box">
+          <span>{{ text().previewCrmNoteLabel }}</span>
+          <input type="text" formControlName="notes" [placeholder]="text().staffCrmNotesPlaceholder" />
+        </label>
+        <button mat-flat-button type="submit">{{ text().staffCrmAddBtn }}</button>
+      </form>
+    </div>
+  }
+</section>
+
+<!-- 3. SALON INSTANCE PRESET SWITCHER (Preserves foundation E2E suite) -->
   <section id="workspace" class="workspace-section">
     <div>
       <p class="eyebrow">SALONZOFT / {{ text().selected }}</p>
@@ -140,19 +450,19 @@
       <div class="studio-kpi-grid">
         <div class="kpi-box">
           <span>{{ text().statBookings }}</span>
-          <strong dir="ltr">{{ studioMetrics().bookings }}</strong>
+          <strong dir="ltr">{{ salon.appointments().length }}</strong>
         </div>
         <div class="kpi-box">
           <span>{{ text().statTicket }}</span>
-          <strong dir="ltr">{{ studioMetrics().avgTicket }}</strong>
+          <strong dir="ltr">{{ salon.todayRevenue() }} OMR</strong>
         </div>
         <div class="kpi-box">
           <span>{{ text().statRetention }}</span>
-          <strong dir="ltr">{{ studioMetrics().retention }}</strong>
+          <strong dir="ltr">{{ presetMeta().retention }}</strong>
         </div>
         <div class="kpi-box">
           <span>{{ text().statChairs }}</span>
-          <strong dir="ltr">{{ studioMetrics().chairs }}</strong>
+          <strong dir="ltr">{{ presetMeta().chairs }}</strong>
         </div>
       </div>
     </div>
@@ -202,6 +512,8 @@
     </div>
   </section>
 }
+
+<!-- 4. SINGLE-SALON ARCHITECTURE ADVANTAGES -->
 <section id="features" class="features-section">
   <div class="section-head">
     <p class="eyebrow">{{ text().featuresEyebrow }}</p>
@@ -241,6 +553,8 @@
     </article>
   </div>
 </section>
+
+<!-- 5. DEPLOYMENT EDITIONS -->
 <section id="pricing" class="pricing-section">
   <div class="pricing-head">
     <div>
@@ -278,7 +592,7 @@
         <li>{{ text().plan1Spec3 }}</li>
         <li>{{ text().plan1Spec4 }}</li>
       </ul>
-      <button mat-button type="button" (click)="scrollTo('workspace')">{{ text().planCta }}</button>
+      <button mat-button type="button" (click)="scrollTo('booking')">{{ text().planCta }}</button>
     </article>
     <article class="price-card featured-plan">
       <span class="popular-pill">{{ text().pricingPopular }}</span>
@@ -294,7 +608,7 @@
         <li>{{ text().plan2Spec3 }}</li>
         <li>{{ text().plan2Spec4 }}</li>
       </ul>
-      <button mat-flat-button type="button" (click)="scrollTo('workspace')">{{ text().planCta }}</button>
+      <button mat-flat-button type="button" (click)="scrollTo('booking')">{{ text().planCta }}</button>
     </article>
     <article class="price-card">
       <h3>{{ text().plan3Name }}</h3>
@@ -309,10 +623,11 @@
         <li>{{ text().plan3Spec3 }}</li>
         <li>{{ text().plan3Spec4 }}</li>
       </ul>
-      <button mat-button type="button" (click)="scrollTo('workspace')">{{ text().planCta }}</button>
+      <button mat-button type="button" (click)="scrollTo('staff-portal')">{{ text().planCta }}</button>
     </article>
   </div>
 </section>
+
 <section class="readiness">
   <p class="eyebrow">{{ text().ready }}</p>
   <h2>{{ text().readyIntro }}</h2>
