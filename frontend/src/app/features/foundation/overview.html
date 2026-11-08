@@ -9,13 +9,15 @@
       <span>✦ {{ text().badgeLedger }}</span>
     </div>
     <div class="actions">
-      <button mat-flat-button type="button" (click)="scrollTo('booking')">
+      <button mat-flat-button type="button" (click)="scrollTo('enquiry')">
         {{ text().explore }} <span aria-hidden="true">↓</span>
       </button>
-      <button mat-button type="button" (click)="scrollTo('staff-portal')">
+      <button mat-button type="button" (click)="scrollTo('features')">
         {{ text().staffCta }}
       </button>
-      <a mat-button routerLink="/guide">{{ text().learn }}</a>
+      <a mat-button href="mailto:mail@salonzoft.com?subject=Salonzoft%20Onboarding%20Enquiry">
+        mail@salonzoft.com
+      </a>
     </div>
   </div>
   <div class="brand-art">
@@ -32,7 +34,7 @@
               : 'Noura Studio'
           }}</small>
         </div>
-        <span class="window-badge">{{ text().demo }}</span>
+        <span class="window-badge">salonzoft.com</span>
       </div>
       <div class="preview-tabs" role="tablist">
         <button
@@ -80,9 +82,7 @@
                         ? text().previewStatusInService
                         : item.status === 'checkedIn'
                           ? text().previewStatusCheckedIn
-                          : item.status === 'completed'
-                            ? text().previewStatusCompleted
-                            : text().previewStatusConfirmed
+                          : text().previewStatusConfirmed
                     }}
                   </span>
                   <span class="slot-price" dir="ltr">{{ item.price.toFixed(3) }} OMR</span>
@@ -140,380 +140,7 @@
   </div>
 </section>
 
-@if (data.mode === 'demo') {
-<!-- 1. PUBLIC CLIENT ONLINE BOOKING & SERVICE MENU -->
-<section id="booking" class="portal-section">
-  <div class="section-head">
-    <p class="eyebrow">{{ text().bookingEyebrow }}</p>
-    <h2>{{ text().bookingTitle }}</h2>
-    <p class="muted">{{ text().bookingIntro }}</p>
-  </div>
-  <div class="booking-layout">
-    <div class="menu-grid">
-      @for (svc of salon.config.services; track svc.code) {
-        <article class="service-item-card">
-          <div class="svc-top">
-            <span class="svc-cat">{{
-              language.locale() === 'ar' ? svc.categoryAr : svc.categoryEn
-            }}</span>
-            <span class="svc-duration" dir="ltr">{{ svc.durationMin }} min</span>
-          </div>
-          <h3>{{ language.locale() === 'ar' ? svc.nameAr : svc.nameEn }}</h3>
-          <div class="svc-bottom">
-            <strong dir="ltr">{{ svc.price.toFixed(3) }} {{ salon.config.currency }}</strong>
-            <button
-              type="button"
-              class="svc-pick-btn"
-              (click)="chooseServiceForBooking(svc.code)"
-            >
-              {{ text().selectForBooking }}
-            </button>
-          </div>
-        </article>
-      }
-    </div>
-
-    <form id="booking-form" class="salon-form-card" [formGroup]="bookingForm" (ngSubmit)="submitOnlineBooking()">
-      <h3>{{ text().bookingFormTitle }}</h3>
-      @if (salon.lastBookedRef(); as ref) {
-        <div class="booking-alert" role="status">
-          <strong>✦ {{ text().bookingConfirmedBanner }}: {{ ref }}</strong>
-          <span>{{ text().bookingSyncedNote }}</span>
-        </div>
-      }
-      <div class="form-row-2">
-        <label class="field-box">
-          <span>{{ text().bookingBranchLabel }}</span>
-          <select formControlName="branch">
-            @for (b of salon.config.branches; track b) {
-              <option [value]="b">{{ b }}</option>
-            }
-          </select>
-        </label>
-        <label class="field-box">
-          <span>{{ text().bookingServiceLabel }}</span>
-          <select formControlName="serviceCode">
-            @for (svc of salon.config.services; track svc.code) {
-              <option [value]="svc.code">
-                {{ language.locale() === 'ar' ? svc.nameAr : svc.nameEn }} ({{ svc.price }} OMR)
-              </option>
-            }
-          </select>
-        </label>
-      </div>
-      <div class="form-row-3">
-        <label class="field-box">
-          <span>{{ text().bookingStylistLabel }}</span>
-          <select formControlName="stylistId">
-            @for (st of salon.config.stylists; track st.id) {
-              <option [value]="st.id">
-                {{ language.locale() === 'ar' ? st.nameAr : st.nameEn }}
-              </option>
-            }
-          </select>
-        </label>
-        <label class="field-box">
-          <span>{{ text().bookingDateLabel }}</span>
-          <input type="date" formControlName="date" />
-        </label>
-        <label class="field-box">
-          <span>{{ text().bookingTimeLabel }}</span>
-          <select formControlName="time">
-            @for (slot of salon.config.timeSlots; track slot) {
-              <option [value]="slot">{{ slot }}</option>
-            }
-          </select>
-        </label>
-      </div>
-      <div class="form-row-2">
-        <label class="field-box">
-          <span>{{ text().bookingNameLabel }}</span>
-          <input
-            type="text"
-            formControlName="clientName"
-            [placeholder]="text().bookingNamePlaceholder"
-          />
-        </label>
-        <label class="field-box">
-          <span>{{ text().bookingPhoneLabel }}</span>
-          <input
-            type="tel"
-            formControlName="clientPhone"
-            [placeholder]="text().bookingPhonePlaceholder"
-          />
-        </label>
-      </div>
-      <label class="field-box">
-        <span>{{ text().bookingNotesLabel }}</span>
-        <input
-          type="text"
-          formControlName="notes"
-          [placeholder]="text().bookingNotesPlaceholder"
-        />
-      </label>
-      <button mat-flat-button type="submit">{{ text().bookingSubmit }}</button>
-    </form>
-  </div>
-</section>
-
-<!-- 2. STAFF & RECEPTION OPERATIONS PORTAL -->
-<section id="staff-portal" class="portal-section">
-  <div class="pricing-head">
-    <div>
-      <p class="eyebrow">{{ text().staffEyebrow }}</p>
-      <h2>{{ text().staffTitle }}</h2>
-      <p class="muted">{{ text().staffIntro }}</p>
-    </div>
-    <div class="billing-toggle" role="tablist">
-      <button
-        type="button"
-        [class.active-billing]="staffTab() === 'calendar'"
-        (click)="setStaffTab('calendar')"
-      >
-        {{ text().staffTabCalendar }} ({{ salon.appointments().length }})
-      </button>
-      <button
-        type="button"
-        [class.active-billing]="staffTab() === 'pos'"
-        (click)="setStaffTab('pos')"
-      >
-        {{ text().staffTabPos }}
-      </button>
-      <button
-        type="button"
-        [class.active-billing]="staffTab() === 'crm'"
-        (click)="setStaffTab('crm')"
-      >
-        {{ text().staffTabCrm }} ({{ salon.clients().length }})
-      </button>
-    </div>
-  </div>
-
-  @if (staffTab() === 'calendar') {
-    <p class="portal-hint">✦ {{ text().staffAdvanceHint }}</p>
-    <div class="staff-appointments-list">
-      @for (apt of salon.appointments(); track apt.id) {
-        <div class="staff-apt-card">
-          <div class="apt-time-col" dir="ltr">
-            <strong>{{ apt.time }}</strong>
-            <small>{{ apt.refCode }}</small>
-          </div>
-          <div class="apt-main-col">
-            <strong>{{ apt.clientName }} <span class="apt-phone" dir="ltr">· {{ apt.clientPhone }}</span></strong>
-            <p>
-              {{ language.locale() === 'ar' ? apt.serviceAr : apt.serviceEn }} ·
-              {{ language.locale() === 'ar' ? apt.stylistAr : apt.stylistEn }} ·
-              <span>{{ apt.branch }}</span>
-            </p>
-            @if (apt.notes) {
-              <small class="apt-note">{{ apt.notes }}</small>
-            }
-          </div>
-          <div class="apt-action-col">
-            <strong dir="ltr">{{ apt.price.toFixed(3) }} OMR</strong>
-            <button
-              type="button"
-              class="status-action-btn"
-              [attr.data-status]="apt.status"
-              (click)="advanceStatus(apt.id)"
-            >
-              {{
-                apt.status === 'inService'
-                  ? text().previewStatusInService
-                  : apt.status === 'checkedIn'
-                    ? text().previewStatusCheckedIn
-                    : apt.status === 'completed'
-                      ? text().previewStatusCompleted
-                      : text().previewStatusConfirmed
-              }}
-              · {{ text().staffAdvanceBtn }}
-            </button>
-          </div>
-        </div>
-      }
-    </div>
-  } @else if (staffTab() === 'pos') {
-    <div class="pos-portal-grid">
-      <form class="salon-form-card" [formGroup]="posForm" (ngSubmit)="submitPosCheckout()">
-        <h3>{{ text().staffPosFormTitle }}</h3>
-        <label class="field-box">
-          <span>{{ text().staffPosClientLabel }}</span>
-          <input type="text" formControlName="clientName" />
-        </label>
-        <label class="field-box">
-          <span>{{ text().staffPosServiceLabel }}</span>
-          <select formControlName="serviceCode">
-            @for (svc of salon.config.services; track svc.code) {
-              <option [value]="svc.code">
-                {{ language.locale() === 'ar' ? svc.nameAr : svc.nameEn }} ({{ svc.price.toFixed(3) }} OMR)
-              </option>
-            }
-          </select>
-        </label>
-        <label class="check-row">
-          <input type="checkbox" formControlName="includeRetailMask" />
-          <span>{{ text().staffPosRetailLabel }}</span>
-        </label>
-        <label class="check-row">
-          <input type="checkbox" formControlName="applyVipDiscount" />
-          <span>{{ text().staffPosVipLabel }}</span>
-        </label>
-        <label class="field-box">
-          <span>{{ text().staffPosMethodLabel }}</span>
-          <select formControlName="method">
-            <option value="Card">Card</option>
-            <option value="Cash">Cash</option>
-            <option value="Split">Split (Card + Wallet)</option>
-          </select>
-        </label>
-        <button mat-flat-button type="submit">{{ text().staffPosSubmit }}</button>
-      </form>
-
-      <div class="salon-form-card">
-        <div class="register-summary-head">
-          <h3>{{ text().staffPosReceiptsTitle }}</h3>
-          <div class="register-total-pill">
-            <span>{{ text().staffPosRevenueLabel }}</span>
-            <strong dir="ltr">{{ salon.todayRevenue() }} OMR</strong>
-          </div>
-        </div>
-        <div class="receipts-stack">
-          @for (rc of salon.receipts(); track rc.id) {
-            <div class="receipt-item">
-              <div>
-                <strong>{{ rc.clientName }} <small dir="ltr">({{ rc.receiptNo }})</small></strong>
-                <p>{{ language.locale() === 'ar' ? rc.summaryAr : rc.summaryEn }}</p>
-              </div>
-              <div class="receipt-right" dir="ltr">
-                <strong>{{ rc.netTotal.toFixed(3) }} OMR</strong>
-                <small>{{ rc.method }} · {{ rc.time }}</small>
-              </div>
-            </div>
-          }
-        </div>
-      </div>
-    </div>
-  } @else {
-    <div class="pos-portal-grid">
-      <div class="crm-cards-stack">
-        @for (client of salon.clients(); track client.id) {
-          <article class="salon-form-card crm-record-card">
-            <div class="crm-top">
-              <span class="crm-avatar">{{ client.name.charAt(0) }}</span>
-              <div>
-                <strong>{{ client.name }}</strong>
-                <small>{{ language.locale() === 'ar' ? client.tierAr : client.tierEn }} · <span dir="ltr">{{ client.phone }}</span></small>
-              </div>
-            </div>
-            <div class="crm-box">
-              <span>{{ text().previewCrmFormulaLabel }}</span>
-              <p>{{ client.formula }}</p>
-            </div>
-            <div class="crm-box">
-              <span>{{ text().previewCrmNoteLabel }}</span>
-              <p>{{ client.notes }}</p>
-            </div>
-          </article>
-        }
-      </div>
-
-      <form class="salon-form-card" [formGroup]="crmForm" (ngSubmit)="submitCrmFormula()">
-        <h3>{{ text().staffCrmFormTitle }}</h3>
-        <label class="field-box">
-          <span>{{ text().bookingNameLabel }}</span>
-          <input type="text" formControlName="name" [placeholder]="text().bookingNamePlaceholder" />
-        </label>
-        <label class="field-box">
-          <span>{{ text().bookingPhoneLabel }}</span>
-          <input type="tel" formControlName="phone" [placeholder]="text().bookingPhonePlaceholder" />
-        </label>
-        <label class="field-box">
-          <span>{{ text().previewCrmFormulaLabel }}</span>
-          <input type="text" formControlName="formula" [placeholder]="text().staffCrmFormulaPlaceholder" />
-        </label>
-        <label class="field-box">
-          <span>{{ text().previewCrmNoteLabel }}</span>
-          <input type="text" formControlName="notes" [placeholder]="text().staffCrmNotesPlaceholder" />
-        </label>
-        <button mat-flat-button type="submit">{{ text().staffCrmAddBtn }}</button>
-      </form>
-    </div>
-  }
-</section>
-
-<!-- 3. SALON INSTANCE PRESET SWITCHER (Preserves foundation E2E suite) -->
-  <section id="workspace" class="workspace-section">
-    <div>
-      <p class="eyebrow">SALONZOFT / {{ text().selected }}</p>
-      <h2>{{ text().context }}</h2>
-      <p class="muted">{{ text().contextIntro }}</p>
-      <div class="studio-kpi-grid">
-        <div class="kpi-box">
-          <span>{{ text().statBookings }}</span>
-          <strong dir="ltr">{{ salon.appointments().length }}</strong>
-        </div>
-        <div class="kpi-box">
-          <span>{{ text().statTicket }}</span>
-          <strong dir="ltr">{{ salon.todayRevenue() }} OMR</strong>
-        </div>
-        <div class="kpi-box">
-          <span>{{ text().statRetention }}</span>
-          <strong dir="ltr">{{ presetMeta().retention }}</strong>
-        </div>
-        <div class="kpi-box">
-          <span>{{ text().statChairs }}</span>
-          <strong dir="ltr">{{ presetMeta().chairs }}</strong>
-        </div>
-      </div>
-    </div>
-    <div class="workspace-card">
-      @if (data.workspaces.length) {
-        <mat-form-field appearance="outline"
-          ><mat-label>{{ text().workspace }}</mat-label
-          ><mat-select [formControl]="selection" (selectionChange)="select()">
-            @for (workspace of data.workspaces; track workspace.id) {
-              <mat-option [value]="workspace.id">{{
-                language.locale() === 'ar' ? workspace.arabicName : workspace.name
-              }}</mat-option>
-            }
-          </mat-select></mat-form-field
-        >
-        @if (data.selected(); as workspace) {
-          <div class="workspace-name" aria-live="polite">
-            <span class="monogram" aria-hidden="true">{{ workspace.name.charAt(0) }}</span>
-            <div>
-              <h3>{{ language.locale() === 'ar' ? workspace.arabicName : workspace.name }}</h3>
-              <span lang="ar" dir="rtl">{{ workspace.arabicName }}</span>
-            </div>
-            <span class="sample-tag">{{ text().demo }}</span>
-          </div>
-          <dl>
-            <div>
-              <dt>{{ text().locations }}</dt>
-              <dd dir="ltr">{{ workspace.locations.join(' · ') }}</dd>
-            </div>
-            <div>
-              <dt>{{ text().timezone }}</dt>
-              <dd dir="ltr">{{ workspace.timeZone }}</dd>
-            </div>
-            <div>
-              <dt>{{ text().currency }}</dt>
-              <dd dir="ltr">{{ workspace.currency }}</dd>
-            </div>
-          </dl>
-        }
-        <div class="card-bottom">
-          <p>{{ text().memory }}</p>
-          <button mat-button (click)="reset()">{{ text().reset }}</button>
-        </div>
-      } @else {
-        <p role="status">{{ text().empty }}</p>
-      }
-    </div>
-  </section>
-}
-
-<!-- 4. SINGLE-SALON ARCHITECTURE ADVANTAGES -->
+<!-- 1. COMPLETE SALON & SPA PLATFORM MODULES -->
 <section id="features" class="features-section">
   <div class="section-head">
     <p class="eyebrow">{{ text().featuresEyebrow }}</p>
@@ -554,7 +181,31 @@
   </div>
 </section>
 
-<!-- 5. DEPLOYMENT EDITIONS -->
+<!-- 2. 3-STEP WHITE-GLOVE ONBOARDING PROCESS -->
+<section id="onboarding" class="readiness">
+  <p class="eyebrow">{{ text().onboardingEyebrow }}</p>
+  <h2>{{ text().onboardingTitle }}</h2>
+  <p class="muted">{{ text().onboardingIntro }}</p>
+  <div class="pillars">
+    <article>
+      <span class="number">01</span>
+      <h3>{{ text().step1Title }}</h3>
+      <p>{{ text().step1Body }}</p>
+    </article>
+    <article>
+      <span class="number">02</span>
+      <h3>{{ text().step2Title }}</h3>
+      <p>{{ text().step2Body }}</p>
+    </article>
+    <article>
+      <span class="number">03</span>
+      <h3>{{ text().step3Title }}</h3>
+      <p>{{ text().step3Body }}</p>
+    </article>
+  </div>
+</section>
+
+<!-- 3. TRANSPARENT PLANS -->
 <section id="pricing" class="pricing-section">
   <div class="pricing-head">
     <div>
@@ -592,7 +243,9 @@
         <li>{{ text().plan1Spec3 }}</li>
         <li>{{ text().plan1Spec4 }}</li>
       </ul>
-      <button mat-button type="button" (click)="scrollTo('booking')">{{ text().planCta }}</button>
+      <button mat-button type="button" (click)="chooseEdition('Boutique Studio')">
+        {{ text().planCta }}
+      </button>
     </article>
     <article class="price-card featured-plan">
       <span class="popular-pill">{{ text().pricingPopular }}</span>
@@ -608,7 +261,9 @@
         <li>{{ text().plan2Spec3 }}</li>
         <li>{{ text().plan2Spec4 }}</li>
       </ul>
-      <button mat-flat-button type="button" (click)="scrollTo('booking')">{{ text().planCta }}</button>
+      <button mat-flat-button type="button" (click)="chooseEdition('Signature Salon & Spa')">
+        {{ text().planCta }}
+      </button>
     </article>
     <article class="price-card">
       <h3>{{ text().plan3Name }}</h3>
@@ -623,29 +278,206 @@
         <li>{{ text().plan3Spec3 }}</li>
         <li>{{ text().plan3Spec4 }}</li>
       </ul>
-      <button mat-button type="button" (click)="scrollTo('staff-portal')">{{ text().planCta }}</button>
+      <button mat-button type="button" (click)="chooseEdition('Enterprise & Custom')">
+        {{ text().planCta }}
+      </button>
     </article>
   </div>
 </section>
 
-<section class="readiness">
-  <p class="eyebrow">{{ text().ready }}</p>
-  <h2>{{ text().readyIntro }}</h2>
-  <div class="pillars">
-    <article>
-      <span class="number">01</span>
-      <h3>{{ text().design }}</h3>
-      <p>{{ text().designBody }}</p>
-    </article>
-    <article>
-      <span class="number">02</span>
-      <h3>{{ text().modes }}</h3>
-      <p>{{ text().modesBody }}</p>
-    </article>
-    <article>
-      <span class="number">03</span>
-      <h3>{{ text().next }}</h3>
-      <p>{{ text().nextBody }}</p>
-    </article>
+<!-- 4. ENQUIRE & ONBOARD YOUR SALON (mail@salonzoft.com) -->
+<section id="enquiry" class="portal-section">
+  <div class="section-head">
+    <p class="eyebrow">{{ text().enquiryEyebrow }}</p>
+    <h2>{{ text().enquiryTitle }}</h2>
+    <p class="muted">{{ text().enquiryIntro }}</p>
+  </div>
+  <div class="booking-layout">
+    <div class="salon-form-card">
+      <img src="assets/brand/logo-transparent.svg" alt="Salonzoft" width="180" height="144" />
+      <h3>{{ text().contactCardTitle }}</h3>
+      <p class="muted">{{ text().contactCardBody }}</p>
+      <div class="crm-box">
+        <span>{{ text().contactDomainLabel }}</span>
+        <p><a href="https://salonzoft.com" dir="ltr">https://salonzoft.com</a></p>
+      </div>
+      <div class="crm-box">
+        <span>{{ text().contactEmailLabel }}</span>
+        <p>
+          <a href="mailto:mail@salonzoft.com?subject=Salonzoft%20Onboarding%20Enquiry" dir="ltr"
+            >mail@salonzoft.com</a
+          >
+        </p>
+      </div>
+      <div class="crm-box">
+        <span>{{ text().contactHoursLabel }}</span>
+        <p>{{ text().contactHoursValue }}</p>
+      </div>
+      <a
+        mat-flat-button
+        href="mailto:mail@salonzoft.com?subject=Salonzoft%20Onboarding%20Enquiry"
+      >
+        {{ text().enquiryDirectEmailCta }}
+      </a>
+    </div>
+
+    <form class="salon-form-card" [formGroup]="enquiryForm" (ngSubmit)="submitEnquiry()">
+      <h3>{{ text().enquiryFormTitle }}</h3>
+      @if (enquirySubmitted()) {
+        <div class="booking-alert" role="status">
+          <strong>✦ {{ text().enquirySuccessTitle }}</strong>
+          <span>{{ text().enquirySuccessBody }}</span>
+          <a class="mailto-action-link" [href]="mailtoUrl()">{{ text().enquirySendMailBtn }}</a>
+        </div>
+      }
+      <div class="form-row-2">
+        <label class="field-box">
+          <span>{{ text().enquirySalonLabel }}</span>
+          <input
+            type="text"
+            formControlName="salonName"
+            [placeholder]="text().enquirySalonPlaceholder"
+          />
+        </label>
+        <label class="field-box">
+          <span>{{ text().enquiryContactLabel }}</span>
+          <input
+            type="text"
+            formControlName="contactName"
+            [placeholder]="text().enquiryContactPlaceholder"
+          />
+        </label>
+      </div>
+      <div class="form-row-2">
+        <label class="field-box">
+          <span>{{ text().enquiryPhoneLabel }}</span>
+          <input
+            type="tel"
+            formControlName="phone"
+            [placeholder]="text().enquiryPhonePlaceholder"
+          />
+        </label>
+        <label class="field-box">
+          <span>{{ text().enquiryEmailLabel }}</span>
+          <input
+            type="email"
+            formControlName="email"
+            [placeholder]="text().enquiryEmailPlaceholder"
+          />
+        </label>
+      </div>
+      <label class="field-box">
+        <span>{{ text().enquiryCityLabel }}</span>
+        <input type="text" formControlName="city" [placeholder]="text().enquiryCityPlaceholder" />
+      </label>
+      <div class="field-box">
+        <span>{{ text().enquiryPlanLabel }}</span>
+        <div class="billing-toggle" role="group">
+          <button
+            type="button"
+            [class.active-billing]="selectedEdition() === 'Boutique Studio'"
+            (click)="selectedEdition.set('Boutique Studio')"
+          >
+            {{ text().plan1Name }}
+          </button>
+          <button
+            type="button"
+            [class.active-billing]="selectedEdition() === 'Signature Salon & Spa'"
+            (click)="selectedEdition.set('Signature Salon & Spa')"
+          >
+            {{ text().plan2Name }}
+          </button>
+          <button
+            type="button"
+            [class.active-billing]="selectedEdition() === 'Enterprise & Custom'"
+            (click)="selectedEdition.set('Enterprise & Custom')"
+          >
+            {{ text().plan3Name }}
+          </button>
+        </div>
+      </div>
+      <label class="field-box">
+        <span>{{ text().enquiryNotesLabel }}</span>
+        <input
+          type="text"
+          formControlName="notes"
+          [placeholder]="text().enquiryNotesPlaceholder"
+        />
+      </label>
+      <button mat-flat-button type="submit">{{ text().enquirySubmit }}</button>
+    </form>
   </div>
 </section>
+
+<!-- 5. INTERACTIVE SALON CONCEPT PREVIEW -->
+@if (data.mode === 'demo') {
+  <section id="workspace" class="workspace-section">
+    <div>
+      <p class="eyebrow">SALONZOFT / {{ text().selected }}</p>
+      <h2>{{ text().context }}</h2>
+      <p class="muted">{{ text().contextIntro }}</p>
+      <div class="studio-kpi-grid">
+        <div class="kpi-box">
+          <span>{{ text().statBookings }}</span>
+          <strong dir="ltr">{{ presetMeta().bookings }}</strong>
+        </div>
+        <div class="kpi-box">
+          <span>{{ text().statTicket }}</span>
+          <strong dir="ltr">{{ presetMeta().avgTicket }}</strong>
+        </div>
+        <div class="kpi-box">
+          <span>{{ text().statRetention }}</span>
+          <strong dir="ltr">{{ presetMeta().retention }}</strong>
+        </div>
+        <div class="kpi-box">
+          <span>{{ text().statChairs }}</span>
+          <strong dir="ltr">{{ presetMeta().chairs }}</strong>
+        </div>
+      </div>
+    </div>
+    <div class="workspace-card">
+      @if (data.workspaces.length) {
+        <mat-form-field appearance="outline"
+          ><mat-label>{{ text().workspace }}</mat-label
+          ><mat-select [formControl]="selection" (selectionChange)="select()">
+            @for (workspace of data.workspaces; track workspace.id) {
+              <mat-option [value]="workspace.id">{{
+                language.locale() === 'ar' ? workspace.arabicName : workspace.name
+              }}</mat-option>
+            }
+          </mat-select></mat-form-field
+        >
+        @if (data.selected(); as workspace) {
+          <div class="workspace-name" aria-live="polite">
+            <span class="monogram" aria-hidden="true">{{ workspace.name.charAt(0) }}</span>
+            <div>
+              <h3>{{ language.locale() === 'ar' ? workspace.arabicName : workspace.name }}</h3>
+              <span lang="ar" dir="rtl">{{ workspace.arabicName }}</span>
+            </div>
+            <span class="sample-tag">salonzoft.com</span>
+          </div>
+          <dl>
+            <div>
+              <dt>{{ text().locations }}</dt>
+              <dd dir="ltr">{{ workspace.locations.join(' · ') }}</dd>
+            </div>
+            <div>
+              <dt>{{ text().timezone }}</dt>
+              <dd dir="ltr">{{ workspace.timeZone }}</dd>
+            </div>
+            <div>
+              <dt>{{ text().currency }}</dt>
+              <dd dir="ltr">{{ workspace.currency }}</dd>
+            </div>
+          </dl>
+        }
+        <div class="card-bottom">
+          <p>{{ text().memory }}</p>
+          <button mat-button (click)="reset()">{{ text().reset }}</button>
+        </div>
+      } @else {
+        <p role="status">{{ text().empty }}</p>
+      }
+    </div>
+  </section>
+}

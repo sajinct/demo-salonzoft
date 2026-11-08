@@ -62,6 +62,11 @@
                   "glob": "**/*",
                   "input": "public/brand",
                   "output": "assets/brand"
+                },
+                {
+                  "glob": "CNAME",
+                  "input": "public",
+                  "output": "."
                 }
               ],
               "fileReplacements": [
