@@ -1,5 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
@@ -8,15 +9,11 @@ import { Language } from '../../core/language';
 import { SalonInstanceStore } from '../../core/salon-config';
 
 interface StudioPresetMeta {
-  readonly bookings: string;
-  readonly avgTicket: string;
   readonly chairs: string;
   readonly retention: string;
 }
 
 const DEFAULT_PRESET_META: StudioPresetMeta = {
-  bookings: '42',
-  avgTicket: '48.500 OMR',
   chairs: '12 Chairs · 3 VIP Suites',
   retention: '89%',
 };
@@ -24,8 +21,6 @@ const DEFAULT_PRESET_META: StudioPresetMeta = {
 const PRESET_META: Record<string, StudioPresetMeta> = {
   'fictional-noura': DEFAULT_PRESET_META,
   'fictional-waha': {
-    bookings: '29',
-    avgTicket: '64.000 OMR',
     chairs: '8 Spa Suites · 2 Hammams',
     retention: '93%',
   },
@@ -33,7 +28,7 @@ const PRESET_META: Record<string, StudioPresetMeta> = {
 
 @Component({
   selector: 'app-overview',
-  imports: [ReactiveFormsModule, MatButtonModule, MatFormFieldModule, MatSelectModule],
+  imports: [RouterLink, ReactiveFormsModule, MatButtonModule, MatFormFieldModule, MatSelectModule],
   templateUrl: './overview.html',
   styleUrl: './overview.scss',
 })
@@ -44,21 +39,43 @@ export class Overview {
   protected readonly text = this.language.copy;
 
   protected readonly previewTab = signal<'calendar' | 'pos' | 'crm'>('calendar');
-  protected readonly billingCycle = signal<'monthly' | 'annual'>('annual');
-  protected readonly selectedEdition = signal<'Boutique Studio' | 'Signature Salon & Spa' | 'Enterprise & Custom'>('Signature Salon & Spa');
-  protected readonly enquirySubmitted = signal(false);
-  protected readonly mailtoUrl = signal('mailto:mail@salonzoft.com?subject=Salonzoft%20Onboarding%20Enquiry');
+  protected readonly staffTab = signal<'calendar' | 'pos' | 'crm'>('calendar');
 
   protected readonly selection = new FormControl(this.data.selected()?.id ?? '', {
     nonNullable: true,
   });
 
-  protected readonly enquiryForm = new FormGroup({
-    salonName: new FormControl('', { nonNullable: true }),
-    contactName: new FormControl('', { nonNullable: true }),
+  protected readonly bookingForm = new FormGroup({
+    branch: new FormControl(this.salon.config.branches[0] ?? 'Miznora · Al Mouj Muscat', {
+      nonNullable: true,
+    }),
+    serviceCode: new FormControl(this.salon.config.services[0]?.code ?? 'balayage-gloss', {
+      nonNullable: true,
+    }),
+    stylistId: new FormControl(this.salon.config.stylists[0]?.id ?? 'st-noura', {
+      nonNullable: true,
+    }),
+    date: new FormControl('2026-11-09', { nonNullable: true }),
+    time: new FormControl('16:30', { nonNullable: true }),
+    clientName: new FormControl('', { nonNullable: true }),
+    clientPhone: new FormControl('', { nonNullable: true }),
+    notes: new FormControl('', { nonNullable: true }),
+  });
+
+  protected readonly posForm = new FormGroup({
+    clientName: new FormControl('Alya Al-Harthi', { nonNullable: true }),
+    serviceCode: new FormControl(this.salon.config.services[0]?.code ?? 'balayage-gloss', {
+      nonNullable: true,
+    }),
+    includeRetailMask: new FormControl(true, { nonNullable: true }),
+    applyVipDiscount: new FormControl(true, { nonNullable: true }),
+    method: new FormControl<'Card' | 'Cash' | 'Split'>('Card', { nonNullable: true }),
+  });
+
+  protected readonly crmForm = new FormGroup({
+    name: new FormControl('', { nonNullable: true }),
     phone: new FormControl('', { nonNullable: true }),
-    email: new FormControl('', { nonNullable: true }),
-    city: new FormControl('', { nonNullable: true }),
+    formula: new FormControl('', { nonNullable: true }),
     notes: new FormControl('', { nonNullable: true }),
   });
 
@@ -71,39 +88,57 @@ export class Overview {
     this.previewTab.set(tab);
   }
 
-  protected setBilling(cycle: 'monthly' | 'annual'): void {
-    this.billingCycle.set(cycle);
-  }
-
-  protected chooseEdition(edition: 'Boutique Studio' | 'Signature Salon & Spa' | 'Enterprise & Custom'): void {
-    this.selectedEdition.set(edition);
-    this.scrollTo('enquiry');
+  protected setStaffTab(tab: 'calendar' | 'pos' | 'crm'): void {
+    this.staffTab.set(tab);
   }
 
   protected scrollTo(sectionId: string): void {
     document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
-  protected submitEnquiry(): void {
-    const raw = this.enquiryForm.getRawValue();
-    const edition = this.selectedEdition();
-    const subject = encodeURIComponent(
-      `Salonzoft Onboarding Enquiry — ${raw.salonName.trim() || 'New Salon'} (${edition})`,
-    );
-    const bodyLines = [
-      `Salon / Spa Name: ${raw.salonName.trim() || 'Not specified'}`,
-      `Contact Name: ${raw.contactName.trim() || 'Not specified'}`,
-      `Mobile / WhatsApp: ${raw.phone.trim() || 'Not specified'}`,
-      `Email: ${raw.email.trim() || 'Not specified'}`,
-      `City / Country: ${raw.city.trim() || 'Not specified'}`,
-      `Selected Edition: ${edition} (${this.billingCycle() === 'annual' ? 'Annual' : 'Monthly'})`,
-      '',
-      'Requirements / Notes:',
-      raw.notes.trim() || 'Interested in Salonzoft onboarding and a personalized demo.',
-    ];
-    const body = encodeURIComponent(bodyLines.join('\n'));
-    this.mailtoUrl.set(`mailto:mail@salonzoft.com?subject=${subject}&body=${body}`);
-    this.enquirySubmitted.set(true);
+  protected chooseServiceForBooking(code: string): void {
+    this.bookingForm.controls.serviceCode.setValue(code);
+    this.scrollTo('booking-form');
+  }
+
+  protected submitOnlineBooking(): void {
+    const raw = this.bookingForm.getRawValue();
+    this.salon.createBooking({
+      branch: raw.branch,
+      serviceCode: raw.serviceCode,
+      stylistId: raw.stylistId,
+      date: raw.date,
+      time: raw.time,
+      clientName: raw.clientName,
+      clientPhone: raw.clientPhone,
+      notes: raw.notes,
+      source: 'online',
+    });
+    this.bookingForm.controls.clientName.setValue('');
+    this.bookingForm.controls.clientPhone.setValue('');
+    this.bookingForm.controls.notes.setValue('');
+  }
+
+  protected advanceStatus(id: string): void {
+    this.salon.cycleAppointmentStatus(id);
+  }
+
+  protected submitPosCheckout(): void {
+    const raw = this.posForm.getRawValue();
+    this.salon.checkoutPos({
+      clientName: raw.clientName,
+      serviceCode: raw.serviceCode,
+      includeRetailMask: raw.includeRetailMask,
+      applyVipDiscount: raw.applyVipDiscount,
+      method: raw.method,
+    });
+  }
+
+  protected submitCrmFormula(): void {
+    const raw = this.crmForm.getRawValue();
+    if (!raw.name.trim()) return;
+    this.salon.addClientFormula(raw);
+    this.crmForm.reset({ name: '', phone: '', formula: '', notes: '' });
   }
 
   protected select(): void {
