@@ -6,7 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { DATA_ACCESS } from '../../core/data-access';
 import { Language } from '../../core/language';
-import { SalonAppointment, SalonInstanceStore } from '../../core/salon-config';
+import { SalonAppointment, SalonInstanceStore, SalonRole } from '../../core/salon-config';
 
 interface StudioPresetMeta {
   readonly chairs: string;
@@ -32,7 +32,8 @@ export type StaffPortalTab =
   | 'crm'
   | 'inventory'
   | 'packages'
-  | 'workforce';
+  | 'workforce'
+  | 'users';
 
 @Component({
   selector: 'app-overview',
@@ -54,6 +55,20 @@ export class Overview {
 
   protected readonly selection = new FormControl(this.data.selected()?.id ?? '', {
     nonNullable: true,
+  });
+
+  protected readonly loginForm = new FormGroup({
+    email: new FormControl('owner@miznora.om', { nonNullable: true }),
+    password: new FormControl('Miznora2026!', { nonNullable: true }),
+  });
+
+  protected readonly userForm = new FormGroup({
+    email: new FormControl('', { nonNullable: true }),
+    fullNameEn: new FormControl('', { nonNullable: true }),
+    fullNameAr: new FormControl('', { nonNullable: true }),
+    role: new FormControl<SalonRole>('receptionist', { nonNullable: true }),
+    titleEn: new FormControl('Front-Desk Receptionist', { nonNullable: true }),
+    branchScope: new FormControl('Miznora · Al Mouj Muscat', { nonNullable: true }),
   });
 
   protected readonly bookingForm = new FormGroup({
@@ -172,7 +187,53 @@ export class Overview {
   }
 
   protected setStaffTab(tab: StaffPortalTab): void {
-    this.staffTab.set(tab);
+    if (this.salon.canAccessTab(tab)) {
+      this.staffTab.set(tab);
+    }
+  }
+
+  protected submitStaffLogin(): void {
+    const raw = this.loginForm.getRawValue();
+    const user = this.salon.loginStaff(raw.email, raw.password);
+    if (user) {
+      this.ensureAllowedTabForRole(user.role);
+    }
+  }
+
+  protected loginAsDemoUser(role: SalonRole): void {
+    const user = this.salon.quickLoginAsRole(role);
+    if (user) {
+      this.loginForm.controls.email.setValue(user.email);
+      this.loginForm.controls.password.setValue(user.demoPassword);
+      this.ensureAllowedTabForRole(user.role);
+    }
+  }
+
+  protected logoutStaff(): void {
+    this.salon.logoutStaff();
+  }
+
+  private ensureAllowedTabForRole(role: SalonRole): void {
+    if (role === 'finance_viewer') {
+      this.staffTab.set('pos');
+    } else {
+      this.staffTab.set('calendar');
+    }
+  }
+
+  protected onRoleSelectChange(userId: string, event: Event): void {
+    const select = event.target as HTMLSelectElement | null;
+    const role = (select?.value as SalonRole) ?? 'receptionist';
+    this.salon.changeUserRole(userId, role);
+  }
+
+  protected submitNewStaffUser(): void {
+    const raw = this.userForm.getRawValue();
+    if (!raw.email.trim() || !raw.fullNameEn.trim()) return;
+    this.salon.addStaffUser(raw);
+    this.userForm.controls.email.setValue('');
+    this.userForm.controls.fullNameEn.setValue('');
+    this.userForm.controls.fullNameAr.setValue('');
   }
 
   protected setCategoryFilter(cat: string): void {
@@ -233,6 +294,7 @@ export class Overview {
   }
 
   protected sendAppointmentToPos(apt: SalonAppointment): void {
+    if (!this.salon.canAccessTab('pos')) return;
     this.posForm.controls.clientName.setValue(apt.clientName);
     this.posForm.controls.serviceCode.setValue(apt.serviceCode);
     this.staffTab.set('pos');
@@ -302,7 +364,16 @@ export class Overview {
 
   protected exportDailyReportCsv(): void {
     const rows = [
-      ['Receipt No', 'Client', 'Summary', 'Subtotal OMR', 'Discount OMR', '5% VAT OMR', 'Net Total OMR', 'Method'],
+      [
+        'Receipt No',
+        'Client',
+        'Summary',
+        'Subtotal OMR',
+        'Discount OMR',
+        '5% VAT OMR',
+        'Net Total OMR',
+        'Method',
+      ],
       ...this.salon.receipts().map((r) => [
         r.receiptNo,
         r.clientName,
@@ -314,7 +385,9 @@ export class Overview {
         r.method,
       ]),
     ];
-    const csv = rows.map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n');
+    const csv = rows
+      .map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(','))
+      .join('\n');
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');

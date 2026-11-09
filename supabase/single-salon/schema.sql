@@ -168,6 +168,21 @@ create table if not exists public.salon_packages (
   created_at timestamptz not null default now()
 );
 
+-- 11. Salon Users, Roles & Branch Access Control (Phase 02 RBAC)
+create table if not exists public.salon_users (
+  id uuid primary key default gen_random_uuid(),
+  email text not null unique,
+  demo_password text not null default 'Miznora2026!',
+  full_name_en text not null,
+  full_name_ar text not null,
+  role text not null check (role in ('owner', 'manager', 'receptionist', 'professional', 'finance_viewer')),
+  title_en text not null,
+  title_ar text not null,
+  branch_scope text not null default 'All Branches',
+  active boolean not null default true,
+  created_at timestamptz not null default now()
+);
+
 -- ============================================================================
 -- ROW LEVEL SECURITY & GRANTS FOR MIZNORA DEMO INSTANCE
 -- ============================================================================
@@ -181,6 +196,7 @@ alter table public.salon_waitlist enable row level security;
 alter table public.salon_invoices enable row level security;
 alter table public.salon_inventory enable row level security;
 alter table public.salon_packages enable row level security;
+alter table public.salon_users enable row level security;
 
 grant usage on schema public to anon, authenticated;
 grant select, insert, update, delete on all tables in schema public to anon, authenticated;
@@ -214,6 +230,9 @@ create policy "Miznora demo access inventory" on public.salon_inventory for all 
 
 drop policy if exists "Miznora demo access packages" on public.salon_packages;
 create policy "Miznora demo access packages" on public.salon_packages for all to anon, authenticated using (true) with check (true);
+
+drop policy if exists "Miznora demo access users" on public.salon_users;
+create policy "Miznora demo access users" on public.salon_users for all to anon, authenticated using (true) with check (true);
 
 -- ============================================================================
 -- INITIAL MIZNORA SALON & SPA SEED DATA
@@ -295,3 +314,12 @@ values
   ('MZ-INV-081', 'Sheikha Al-Lawati', 'Miznora Signature Balayage & Gloss + Botanical Mask (VIP -10%) · +5% VAT', 'بالياج ولمعة ميزنورا + قناع نباتي (خصم VIP ١٠٪) · +٥٪ ضريبة', 65.000, 6.500, 2.925, 61.425, 'Split', '09:45'),
   ('MZ-INV-082', 'Dana Al-Shanfari', 'Hydra-Glow Facial & Scalp Spa · +5% VAT', 'فيشل النضارة وسبا فروة الرأس · +٥٪ ضريبة', 52.000, 0.000, 2.600, 54.600, 'Card', '10:20')
 on conflict (receipt_no) do nothing;
+
+insert into public.salon_users (email, demo_password, full_name_en, full_name_ar, role, title_en, title_ar, branch_scope)
+values
+  ('owner@miznora.om', 'Miznora2026!', 'Sheikha Al-Busaidi', 'شيخة البوسعيدية', 'owner', 'Founder & Executive Owner', 'المؤسسة والمالكة التنفيذية', 'All Branches (Al Mouj · Seeb · Salalah)'),
+  ('manager@miznora.om', 'Miznora2026!', 'Tariq Al-Said', 'طارق السعيدي', 'manager', 'General Branch Manager', 'مدير الفروع العام', 'Miznora · Al Mouj Muscat'),
+  ('reception@miznora.om', 'Miznora2026!', 'Amira Al-Harthi', 'أميرة الحارثية', 'receptionist', 'Senior Front-Desk Receptionist', 'مسؤولة الاستقبال والحجوزات', 'Miznora · Al Mouj & Seeb'),
+  ('noura@miznora.om', 'Miznora2026!', 'Noura Al-Said', 'نورة السعيدية', 'professional', 'Master Colourist · Chair 01', 'خبيرة صبغات أولى · كرسي ٠١', 'Miznora · Al Mouj Muscat'),
+  ('finance@miznora.om', 'Miznora2026!', 'Khalid Al-Zadjali', 'خالد الزدجالي', 'finance_viewer', 'Finance & Oman VAT Auditor', 'مدقق الحسابات وضريبة القيمة المضافة', 'All Branches (Read-Only Finance)')
+on conflict (email) do nothing;

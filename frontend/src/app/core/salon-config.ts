@@ -120,6 +120,22 @@ export interface SalonAutomationCampaign {
   readonly lastTriggered: string;
 }
 
+export type SalonRole = 'owner' | 'manager' | 'receptionist' | 'professional' | 'finance_viewer';
+
+export interface SalonUserAccount {
+  readonly id: string;
+  readonly email: string;
+  readonly demoPassword: string;
+  readonly fullNameEn: string;
+  readonly fullNameAr: string;
+  readonly role: SalonRole;
+  readonly titleEn: string;
+  readonly titleAr: string;
+  readonly branchScope: string;
+  readonly permissionsSummaryEn: string;
+  readonly permissionsSummaryAr: string;
+}
+
 export interface SingleSalonConfig {
   readonly instanceId: string;
   readonly clientBrandEn: string;
@@ -578,6 +594,79 @@ const INITIAL_CAMPAIGNS: readonly SalonAutomationCampaign[] = [
   },
 ];
 
+const INITIAL_USERS: readonly SalonUserAccount[] = [
+  {
+    id: 'usr-owner',
+    email: 'owner@miznora.om',
+    demoPassword: 'Miznora2026!',
+    fullNameEn: 'Sheikha Al-Busaidi',
+    fullNameAr: 'شيخة البوسعيدية',
+    role: 'owner',
+    titleEn: 'Founder & Executive Owner',
+    titleAr: 'المؤسسة والمالكة التنفيذية',
+    branchScope: 'All Branches (Al Mouj · Seeb · Salalah)',
+    permissionsSummaryEn:
+      'Full Access: All 7 Modules (Calendar, POS, CRM, Inventory, Packages, Workforce & User RBAC)',
+    permissionsSummaryAr: 'صلاحيات كاملة لجميع الوحدات السبع وإدارة المستخدمين والأدوار',
+  },
+  {
+    id: 'usr-manager',
+    email: 'manager@miznora.om',
+    demoPassword: 'Miznora2026!',
+    fullNameEn: 'Tariq Al-Said',
+    fullNameAr: 'طارق السعيدي',
+    role: 'manager',
+    titleEn: 'General Branch Manager',
+    titleAr: 'مدير الفروع العام',
+    branchScope: 'Miznora · Al Mouj Muscat',
+    permissionsSummaryEn:
+      'Branch Operations: Calendar, POS, CRM, Backbar Inventory, VIP Packages & Staff Roster',
+    permissionsSummaryAr: 'إدارة الفرع: المواعيد، الصندوق، العميلات، المخزون، الباقات، والموظفات',
+  },
+  {
+    id: 'usr-reception',
+    email: 'reception@miznora.om',
+    demoPassword: 'Miznora2026!',
+    fullNameEn: 'Amira Al-Harthi',
+    fullNameAr: 'أميرة الحارثية',
+    role: 'receptionist',
+    titleEn: 'Senior Front-Desk Receptionist',
+    titleAr: 'مسؤولة الاستقبال والحجوزات',
+    branchScope: 'Miznora · Al Mouj & Seeb',
+    permissionsSummaryEn:
+      'Front Desk Only: Calendar & Waitlist, POS Checkout, Client CRM & VIP Package Redemption',
+    permissionsSummaryAr: 'الاستقبال فقط: المواعيد والانتظار، إصدار الفواتير، ملفات العميلات، والباقات',
+  },
+  {
+    id: 'usr-stylist',
+    email: 'noura@miznora.om',
+    demoPassword: 'Miznora2026!',
+    fullNameEn: 'Noura Al-Said',
+    fullNameAr: 'نورة السعيدية',
+    role: 'professional',
+    titleEn: 'Master Colourist · Chair 01',
+    titleAr: 'خبيرة صبغات أولى · كرسي ٠١',
+    branchScope: 'Miznora · Al Mouj Muscat',
+    permissionsSummaryEn:
+      'Specialist Floor Access: Assigned Appointments & Client Colour Formulas / Patch Tests Only',
+    permissionsSummaryAr: 'صلاحيات الأخصائية: جدول المواعيد المخصص وسجلات تركيبات اللون والحساسية فقط',
+  },
+  {
+    id: 'usr-finance',
+    email: 'finance@miznora.om',
+    demoPassword: 'Miznora2026!',
+    fullNameEn: 'Khalid Al-Zadjali',
+    fullNameAr: 'خالد الزدجالي',
+    role: 'finance_viewer',
+    titleEn: 'Finance & Oman VAT Auditor',
+    titleAr: 'مدقق الحسابات وضريبة القيمة المضافة',
+    branchScope: 'All Branches (Read-Only Finance)',
+    permissionsSummaryEn:
+      'Finance & Audit: POS Cash Register, 5% VAT Ledger, Inventory Valuation & Z-Report CSV Export',
+    permissionsSummaryAr: 'المالية والتدقيق: صندوق المبيعات، ضريبة ٥٪، تقييم المخزون، وتصدير تقارير Z',
+  },
+];
+
 @Injectable({ providedIn: 'root' })
 export class SalonInstanceStore {
   readonly config = SALON_INSTANCE_CONFIG;
@@ -590,6 +679,9 @@ export class SalonInstanceStore {
   readonly inventory = signal<readonly SalonInventoryItem[]>(INITIAL_INVENTORY);
   readonly packages = signal<readonly SalonVipPackage[]>(INITIAL_PACKAGES);
   readonly campaigns = signal<readonly SalonAutomationCampaign[]>(INITIAL_CAMPAIGNS);
+  readonly users = signal<readonly SalonUserAccount[]>(INITIAL_USERS);
+  readonly currentUser = signal<SalonUserAccount | null>(null);
+  readonly authError = signal<string | null>(null);
 
   readonly lastBookedRef = signal<string | null>(null);
   readonly lastActionBanner = signal<string | null>(null);
@@ -1177,6 +1269,123 @@ export class SalonInstanceStore {
     );
   }
 
+  loginStaff(email: string, password: string): SalonUserAccount | null {
+    const cleanEmail = email.trim().toLowerCase();
+    const match = this.users().find(
+      (u) => u.email.toLowerCase() === cleanEmail && u.demoPassword === password.trim(),
+    );
+    if (!match) {
+      this.authError.set('Invalid email or password. Choose one of the demo accounts below.');
+      return null;
+    }
+    this.authError.set(null);
+    this.currentUser.set(match);
+    this.lastActionBanner.set(`Signed in as ${match.fullNameEn} (${match.role.toUpperCase()})`);
+    return match;
+  }
+
+  quickLoginAsRole(role: SalonRole): SalonUserAccount | null {
+    const match = this.users().find((u) => u.role === role) ?? this.users()[0] ?? null;
+    if (match) {
+      this.authError.set(null);
+      this.currentUser.set(match);
+      this.lastActionBanner.set(`Switched session to ${match.fullNameEn} (${match.role.toUpperCase()})`);
+    }
+    return match;
+  }
+
+  logoutStaff(): void {
+    this.currentUser.set(null);
+    this.authError.set(null);
+    this.lastActionBanner.set(null);
+  }
+
+  canAccessTab(
+    tab: 'calendar' | 'pos' | 'crm' | 'inventory' | 'packages' | 'workforce' | 'users',
+  ): boolean {
+    const user = this.currentUser();
+    if (!user) return false;
+    switch (user.role) {
+      case 'owner':
+        return true;
+      case 'manager':
+        return tab !== 'users';
+      case 'receptionist':
+        return tab === 'calendar' || tab === 'pos' || tab === 'crm' || tab === 'packages';
+      case 'professional':
+        return tab === 'calendar' || tab === 'crm';
+      case 'finance_viewer':
+        return tab === 'pos' || tab === 'inventory' || tab === 'workforce';
+    }
+  }
+
+  changeUserRole(userId: string, role: SalonRole): void {
+    let targetEmail = '';
+    this.users.update((list) =>
+      list.map((u) => {
+        if (u.id !== userId) return u;
+        targetEmail = u.email;
+        return { ...u, role };
+      }),
+    );
+    const active = this.currentUser();
+    if (active && active.id === userId) {
+      this.currentUser.set({ ...active, role });
+    }
+    if (targetEmail && this.canUseRemoteSupabase()) {
+      void fetch(
+        `${this.config.supabaseProjectUrl}/rest/v1/salon_users?email=eq.${encodeURIComponent(targetEmail)}`,
+        {
+          method: 'PATCH',
+          headers: this.headers(),
+          body: JSON.stringify({ role }),
+        },
+      ).catch(() => undefined);
+    }
+  }
+
+  addStaffUser(input: {
+    email: string;
+    fullNameEn: string;
+    fullNameAr: string;
+    role: SalonRole;
+    titleEn: string;
+    branchScope: string;
+  }): void {
+    if (!input.email.trim() || !input.fullNameEn.trim()) return;
+    const created: SalonUserAccount = {
+      id: `usr-${Date.now()}`,
+      email: input.email.trim().toLowerCase(),
+      demoPassword: 'Miznora2026!',
+      fullNameEn: input.fullNameEn.trim(),
+      fullNameAr: input.fullNameAr.trim() || input.fullNameEn.trim(),
+      role: input.role,
+      titleEn: input.titleEn.trim() || 'Salon Specialist',
+      titleAr: input.titleEn.trim() || 'أخصائية صالون',
+      branchScope: input.branchScope || 'Miznora · Al Mouj Muscat',
+      permissionsSummaryEn: `Role: ${input.role.toUpperCase()} · ${input.branchScope}`,
+      permissionsSummaryAr: `الدور: ${input.role.toUpperCase()}`,
+    };
+    this.users.update((list) => [...list, created]);
+    this.lastActionBanner.set(`Staff user ${created.email} (${created.role}) created`);
+    if (this.canUseRemoteSupabase()) {
+      void fetch(`${this.config.supabaseProjectUrl}/rest/v1/salon_users`, {
+        method: 'POST',
+        headers: this.headers(),
+        body: JSON.stringify({
+          email: created.email,
+          demo_password: created.demoPassword,
+          full_name_en: created.fullNameEn,
+          full_name_ar: created.fullNameAr,
+          role: created.role,
+          title_en: created.titleEn,
+          title_ar: created.titleAr,
+          branch_scope: created.branchScope,
+        }),
+      }).catch(() => undefined);
+    }
+  }
+
   resetDemoState(): void {
     this.services.set(INITIAL_SERVICES);
     this.stylists.set(INITIAL_STYLISTS);
@@ -1187,6 +1396,9 @@ export class SalonInstanceStore {
     this.inventory.set(INITIAL_INVENTORY);
     this.packages.set(INITIAL_PACKAGES);
     this.campaigns.set(INITIAL_CAMPAIGNS);
+    this.users.set(INITIAL_USERS);
+    this.currentUser.set(null);
+    this.authError.set(null);
     this.lastBookedRef.set(null);
     this.lastActionBanner.set(null);
   }
