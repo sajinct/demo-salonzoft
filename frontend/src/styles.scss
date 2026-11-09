@@ -775,6 +775,62 @@ button:focus-visible {
   color: var(--muted);
   line-height: 1.8;
 }
+.filter-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-block: 14px 18px;
+}
+.pill-btn {
+  border: 1px solid var(--line);
+  background: #ffffff;
+  color: var(--charcoal);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 99px;
+  cursor: pointer;
+}
+.pill-btn.active-pill {
+  background: var(--emerald);
+  border-color: var(--emerald);
+  color: #ffffff;
+}
+.suite-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  max-width: 100%;
+}
+.apt-btn-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: flex-end;
+}
+.sub-form {
+  margin-top: 14px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.sub-form h4 {
+  margin: 0;
+  font-size: 15px;
+  color: var(--emerald);
+}
+.register-kpis {
+  margin-top: 4px;
+  margin-bottom: 6px;
+}
+.action-toast {
+  color: var(--emerald);
+  background: #edf5ef;
+  padding: 3px 8px;
+  border-radius: 99px;
+  margin-inline-start: 6px;
+}
 body .mat-mdc-button,
 body .mat-mdc-unelevated-button {
   letter-spacing: 0;
@@ -807,7 +863,8 @@ body .mat-mdc-unelevated-button {
     padding-block: 36px;
   }
   .schedule-row,
-  .staff-apt-card {
+  .staff-apt-card,
+  .receipt-item {
     flex-wrap: wrap;
   }
   .billing-toggle {

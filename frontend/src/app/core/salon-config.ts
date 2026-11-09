@@ -18,6 +18,12 @@ export interface SalonStylist {
   readonly roleAr: string;
   readonly chairLabelEn: string;
   readonly chairLabelAr: string;
+  readonly branch: string;
+  readonly shiftHours: string;
+  readonly floorStatus: 'onFloor' | 'inSuite' | 'onBreak';
+  readonly commissionPercent: number;
+  readonly completedToday: number;
+  readonly revenueToday: number;
 }
 
 export interface SalonAppointment {
@@ -34,9 +40,22 @@ export interface SalonAppointment {
   readonly stylistEn: string;
   readonly stylistAr: string;
   readonly price: number;
-  readonly status: 'confirmed' | 'checkedIn' | 'inService' | 'completed';
+  readonly status: 'confirmed' | 'checkedIn' | 'inService' | 'completed' | 'cancelled';
   readonly notes: string;
   readonly source: 'online' | 'staff';
+}
+
+export interface SalonWaitlistEntry {
+  readonly id: string;
+  readonly clientName: string;
+  readonly clientPhone: string;
+  readonly branch: string;
+  readonly serviceCode: string;
+  readonly serviceEn: string;
+  readonly serviceAr: string;
+  readonly preferredWindow: string;
+  readonly notes: string;
+  readonly status: 'waiting' | 'promoted';
 }
 
 export interface SalonClientRecord {
@@ -57,9 +76,48 @@ export interface SalonPosReceipt {
   readonly clientName: string;
   readonly summaryEn: string;
   readonly summaryAr: string;
+  readonly subtotal: number;
+  readonly discount: number;
+  readonly vatAmount: number;
   readonly netTotal: number;
-  readonly method: 'Card' | 'Cash' | 'Split';
+  readonly method: 'Card' | 'Cash' | 'Split' | 'Wallet';
   readonly time: string;
+}
+
+export interface SalonInventoryItem {
+  readonly id: string;
+  readonly sku: string;
+  readonly nameEn: string;
+  readonly nameAr: string;
+  readonly category: 'Backbar' | 'Retail';
+  readonly supplier: string;
+  readonly stockQty: number;
+  readonly reorderLevel: number;
+  readonly unitPrice: number;
+}
+
+export interface SalonVipPackage {
+  readonly id: string;
+  readonly packageCode: string;
+  readonly clientName: string;
+  readonly clientPhone: string;
+  readonly titleEn: string;
+  readonly titleAr: string;
+  readonly totalSessions: number;
+  readonly remainingSessions: number;
+  readonly walletBalance: number;
+  readonly expiryDate: string;
+}
+
+export interface SalonAutomationCampaign {
+  readonly id: string;
+  readonly channel: 'WhatsApp' | 'SMS';
+  readonly titleEn: string;
+  readonly titleAr: string;
+  readonly audienceEn: string;
+  readonly audienceAr: string;
+  readonly sentCount: number;
+  readonly lastTriggered: string;
 }
 
 export interface SingleSalonConfig {
@@ -73,6 +131,8 @@ export interface SingleSalonConfig {
   readonly timeZone: string;
   readonly whatsapp: string;
   readonly openingHours: string;
+  readonly openingFloat: number;
+  readonly vatRate: number;
   readonly supabaseProjectRef: string;
   readonly supabaseProjectUrl: string;
   readonly supabasePublishableKey: string;
@@ -86,6 +146,126 @@ const PROJECT_REF = 'kbjyknzcneuhizhxkbwk';
 const SUPABASE_HOST = ['https://' + PROJECT_REF, 'supabase', 'co'].join('.');
 const PUBLISHABLE_KEY = ['sb', 'publishable', 'VPNPrLRqXBpQQIeipND0fQ', 'S2Zp6sOD'].join('_');
 
+const INITIAL_SERVICES: readonly SalonServiceItem[] = [
+  {
+    code: 'balayage-gloss',
+    categoryEn: 'Hair & Colour',
+    categoryAr: 'الشعر والصبغات',
+    nameEn: 'Miznora Signature Balayage & Gloss',
+    nameAr: 'بالياج ولمعة ميزنورا المميزة',
+    durationMin: 150,
+    price: 44,
+  },
+  {
+    code: 'keratin-ritual',
+    categoryEn: 'Keratin & Treatments',
+    categoryAr: 'الكيراتين والمعالجات',
+    nameEn: 'Botanical Caviar Keratin Ritual',
+    nameAr: 'علاج الكيراتين النباتي والكافيار',
+    durationMin: 120,
+    price: 55,
+  },
+  {
+    code: 'bridal-styling',
+    categoryEn: 'Bridal & Makeup',
+    categoryAr: 'العرائس والمكياج',
+    nameEn: 'Royal Bridal Hair & Luminous Makeup',
+    nameAr: 'تصفيف ومكياج العروس الملكي',
+    durationMin: 180,
+    price: 120,
+  },
+  {
+    code: 'royal-hammam',
+    categoryEn: 'Spa & Hammam',
+    categoryAr: 'السبا والحمام الملكي',
+    nameEn: 'Omani Frankincense Royal Hammam',
+    nameAr: 'حمام اللبان العُماني الملكي',
+    durationMin: 90,
+    price: 68,
+  },
+  {
+    code: 'hydra-scalp',
+    categoryEn: 'Spa & Hammam',
+    categoryAr: 'السبا والحمام الملكي',
+    nameEn: 'Hydra-Glow Facial & Scalp Spa',
+    nameAr: 'فيشل النضارة وسبا فروة الرأس',
+    durationMin: 75,
+    price: 52,
+  },
+  {
+    code: 'silk-blowout',
+    categoryEn: 'Hair & Colour',
+    categoryAr: 'الشعر والصبغات',
+    nameEn: 'Couture Cut & Silk Blowout',
+    nameAr: 'قص كوتور وسشوار حريري',
+    durationMin: 60,
+    price: 24,
+  },
+];
+
+const INITIAL_STYLISTS: readonly SalonStylist[] = [
+  {
+    id: 'st-noura',
+    nameEn: 'Noura Al-Said',
+    nameAr: 'نورة السعيدية',
+    roleEn: 'Master Colourist',
+    roleAr: 'خبيرة صبغات أولى',
+    chairLabelEn: 'Chair 01',
+    chairLabelAr: 'كرسي ٠١',
+    branch: 'Miznora · Al Mouj Muscat',
+    shiftHours: '10:00 – 19:00',
+    floorStatus: 'onFloor',
+    commissionPercent: 40,
+    completedToday: 4,
+    revenueToday: 176,
+  },
+  {
+    id: 'st-layla',
+    nameEn: 'Layla Al-Harthi',
+    nameAr: 'ليلى الحارثية',
+    roleEn: 'Keratin & Texture Specialist',
+    roleAr: 'أخصائية معالجات وكيراتين',
+    chairLabelEn: 'Suite A',
+    chairLabelAr: 'جناح أ',
+    branch: 'Miznora · Al Mouj Muscat',
+    shiftHours: '11:00 – 20:00',
+    floorStatus: 'inSuite',
+    commissionPercent: 35,
+    completedToday: 3,
+    revenueToday: 165,
+  },
+  {
+    id: 'st-sara',
+    nameEn: 'Sara Al-Zadjali',
+    nameAr: 'سارة الزدجالية',
+    roleEn: 'Bridal & Editorial Director',
+    roleAr: 'مديرة قسم العرائس والمكياج',
+    chairLabelEn: 'VIP Bridal Suite',
+    chairLabelAr: 'جناح العرائس VIP',
+    branch: 'Miznora · Seeb Boulevard',
+    shiftHours: '10:00 – 21:00',
+    floorStatus: 'onFloor',
+    commissionPercent: 45,
+    completedToday: 2,
+    revenueToday: 240,
+  },
+  {
+    id: 'st-huda',
+    nameEn: 'Huda Al-Kathiri',
+    nameAr: 'هدى الكثيرية',
+    roleEn: 'Senior Hammam & Spa Therapist',
+    roleAr: 'أخصائية السبا والحمام الملكي',
+    chairLabelEn: 'Hammam 01',
+    chairLabelAr: 'حمام ٠١',
+    branch: 'Miznora · Salalah Sanctuary',
+    shiftHours: '12:00 – 21:00',
+    floorStatus: 'onFloor',
+    commissionPercent: 35,
+    completedToday: 3,
+    revenueToday: 204,
+  },
+];
+
 export const SALON_INSTANCE_CONFIG: SingleSalonConfig = {
   instanceId: 'miznora-demo',
   clientBrandEn: 'Miznora Salon & Spa',
@@ -97,6 +277,8 @@ export const SALON_INSTANCE_CONFIG: SingleSalonConfig = {
   timeZone: 'Asia/Muscat',
   whatsapp: '+968 9400 8820',
   openingHours: '10:00 – 21:00',
+  openingFloat: 50,
+  vatRate: 0.05,
   supabaseProjectRef: PROJECT_REF,
   supabaseProjectUrl: SUPABASE_HOST,
   supabasePublishableKey: PUBLISHABLE_KEY,
@@ -106,100 +288,8 @@ export const SALON_INSTANCE_CONFIG: SingleSalonConfig = {
     'Miznora · Salalah Sanctuary',
   ],
   timeSlots: ['10:00', '11:00', '12:00', '13:30', '15:00', '16:30', '18:00', '19:30'],
-  services: [
-    {
-      code: 'balayage-gloss',
-      categoryEn: 'Hair & Colour',
-      categoryAr: 'الشعر والصبغات',
-      nameEn: 'Miznora Signature Balayage & Gloss',
-      nameAr: 'بالياج ولمعة ميزنورا المميزة',
-      durationMin: 150,
-      price: 44,
-    },
-    {
-      code: 'keratin-ritual',
-      categoryEn: 'Keratin & Treatments',
-      categoryAr: 'الكيراتين والمعالجات',
-      nameEn: 'Botanical Caviar Keratin Ritual',
-      nameAr: 'علاج الكيراتين النباتي والكافيار',
-      durationMin: 120,
-      price: 55,
-    },
-    {
-      code: 'bridal-styling',
-      categoryEn: 'Bridal & Makeup',
-      categoryAr: 'العرائس والمكياج',
-      nameEn: 'Royal Bridal Hair & Luminous Makeup',
-      nameAr: 'تصفيف ومكياج العروس الملكي',
-      durationMin: 180,
-      price: 120,
-    },
-    {
-      code: 'royal-hammam',
-      categoryEn: 'Spa & Hammam',
-      categoryAr: 'السبا والحمام الملكي',
-      nameEn: 'Omani Frankincense Royal Hammam',
-      nameAr: 'حمام اللبان العُماني الملكي',
-      durationMin: 90,
-      price: 68,
-    },
-    {
-      code: 'hydra-scalp',
-      categoryEn: 'Spa & Hammam',
-      categoryAr: 'السبا والحمام الملكي',
-      nameEn: 'Hydra-Glow Facial & Scalp Spa',
-      nameAr: 'فيشل النضارة وسبا فروة الرأس',
-      durationMin: 75,
-      price: 52,
-    },
-    {
-      code: 'silk-blowout',
-      categoryEn: 'Hair & Colour',
-      categoryAr: 'الشعر والصبغات',
-      nameEn: 'Couture Cut & Silk Blowout',
-      nameAr: 'قص كوتور وسشوار حريري',
-      durationMin: 60,
-      price: 24,
-    },
-  ],
-  stylists: [
-    {
-      id: 'st-noura',
-      nameEn: 'Noura Al-Said',
-      nameAr: 'نورة السعيدية',
-      roleEn: 'Master Colourist',
-      roleAr: 'خبيرة صبغات أولى',
-      chairLabelEn: 'Chair 01',
-      chairLabelAr: 'كرسي ٠١',
-    },
-    {
-      id: 'st-layla',
-      nameEn: 'Layla Al-Harthi',
-      nameAr: 'ليلى الحارثية',
-      roleEn: 'Keratin & Texture Specialist',
-      roleAr: 'أخصائية معالجات وكيراتين',
-      chairLabelEn: 'Suite A',
-      chairLabelAr: 'جناح أ',
-    },
-    {
-      id: 'st-sara',
-      nameEn: 'Sara Al-Zadjali',
-      nameAr: 'سارة الزدجالية',
-      roleEn: 'Bridal & Editorial Director',
-      roleAr: 'مديرة قسم العرائس والمكياج',
-      chairLabelEn: 'VIP Bridal Suite',
-      chairLabelAr: 'جناح العرائس VIP',
-    },
-    {
-      id: 'st-huda',
-      nameEn: 'Huda Al-Kathiri',
-      nameAr: 'هدى الكثيرية',
-      roleEn: 'Senior Hammam & Spa Therapist',
-      roleAr: 'أخصائية السبا والحمام الملكي',
-      chairLabelEn: 'Hammam 01',
-      chairLabelAr: 'حمام ٠١',
-    },
-  ],
+  services: INITIAL_SERVICES,
+  stylists: INITIAL_STYLISTS,
 };
 
 const INITIAL_APPOINTMENTS: readonly SalonAppointment[] = [
@@ -277,6 +367,33 @@ const INITIAL_APPOINTMENTS: readonly SalonAppointment[] = [
   },
 ];
 
+const INITIAL_WAITLIST: readonly SalonWaitlistEntry[] = [
+  {
+    id: 'wl-1',
+    clientName: 'Fatima Al-Hinai',
+    clientPhone: '+968 9632 4500',
+    branch: 'Miznora · Al Mouj Muscat',
+    serviceCode: 'balayage-gloss',
+    serviceEn: 'Miznora Signature Balayage & Gloss',
+    serviceAr: 'بالياج ولمعة ميزنورا المميزة',
+    preferredWindow: '16:30 – 19:30',
+    notes: 'Flexible if Noura has an evening opening',
+    status: 'waiting',
+  },
+  {
+    id: 'wl-2',
+    clientName: 'Lujain Al-Rawahi',
+    clientPhone: '+968 9411 7720',
+    branch: 'Miznora · Seeb Boulevard',
+    serviceCode: 'hydra-scalp',
+    serviceEn: 'Hydra-Glow Facial & Scalp Spa',
+    serviceAr: 'فيشل النضارة وسبا فروة الرأس',
+    preferredWindow: '15:00 – 18:00',
+    notes: 'VIP Emerald member priority alert',
+    status: 'waiting',
+  },
+];
+
 const INITIAL_CLIENTS: readonly SalonClientRecord[] = [
   {
     id: 'cl-1',
@@ -320,7 +437,10 @@ const INITIAL_RECEIPTS: readonly SalonPosReceipt[] = [
     clientName: 'Sheikha Al-Lawati',
     summaryEn: 'Miznora Signature Balayage & Gloss + Botanical Mask (VIP -10%)',
     summaryAr: 'بالياج ولمعة ميزنورا + قناع نباتي (خصم VIP ١٠٪)',
-    netTotal: 58.5,
+    subtotal: 65.0,
+    discount: 6.5,
+    vatAmount: 2.925,
+    netTotal: 61.425,
     method: 'Split',
     time: '09:45',
   },
@@ -330,19 +450,149 @@ const INITIAL_RECEIPTS: readonly SalonPosReceipt[] = [
     clientName: 'Dana Al-Shanfari',
     summaryEn: 'Hydra-Glow Facial & Scalp Spa',
     summaryAr: 'فيشل النضارة وسبا فروة الرأس',
-    netTotal: 52.0,
+    subtotal: 52.0,
+    discount: 0,
+    vatAmount: 2.6,
+    netTotal: 54.6,
     method: 'Card',
     time: '10:20',
+  },
+];
+
+const INITIAL_INVENTORY: readonly SalonInventoryItem[] = [
+  {
+    id: 'inv-1',
+    sku: 'MZ-INV-01',
+    nameEn: 'Botanical Caviar Keratin Serum (1000ml)',
+    nameAr: 'سيروم الكيراتين النباتي والكافيار (١٠٠٠ مل)',
+    category: 'Backbar',
+    supplier: 'Muscat Botanicals LLC',
+    stockQty: 14,
+    reorderLevel: 5,
+    unitPrice: 42,
+  },
+  {
+    id: 'inv-2',
+    sku: 'MZ-INV-02',
+    nameEn: 'Omani Royal Hojari Frankincense Oil (500ml)',
+    nameAr: 'زيت اللبان الحوجري العُماني الملكي (٥٠٠ مل)',
+    category: 'Backbar',
+    supplier: 'Dhofar Heritage Extracts',
+    stockQty: 4,
+    reorderLevel: 6,
+    unitPrice: 36,
+  },
+  {
+    id: 'inv-3',
+    sku: 'MZ-INV-03',
+    nameEn: 'Miznora Argan & Silk Home Mask (250ml)',
+    nameAr: 'قناع الأرغان والحرير المنزلي (٢٥٠ مل)',
+    category: 'Retail',
+    supplier: 'Miznora Atelier Paris',
+    stockQty: 22,
+    reorderLevel: 8,
+    unitPrice: 21,
+  },
+  {
+    id: 'inv-4',
+    sku: 'MZ-INV-04',
+    nameEn: '7.1 Ash Blonde Couture Crème Colour',
+    nameAr: 'صبغة أشقر رمادي 7.1 كوتور',
+    category: 'Backbar',
+    supplier: 'Milan Colour Lab',
+    stockQty: 3,
+    reorderLevel: 8,
+    unitPrice: 8.5,
+  },
+];
+
+const INITIAL_PACKAGES: readonly SalonVipPackage[] = [
+  {
+    id: 'pkg-1',
+    packageCode: 'MZ-PKG-301',
+    clientName: 'Sheikha Al-Lawati',
+    clientPhone: '+968 9901 4422',
+    titleEn: 'Emerald VIP 6-Session Gloss & Spa Pass',
+    titleAr: 'باقة نخبة الزمرد (٦ جلسات لمعان وسبا)',
+    totalSessions: 6,
+    remainingSessions: 4,
+    walletBalance: 145,
+    expiryDate: '2027-06-30',
+  },
+  {
+    id: 'pkg-2',
+    packageCode: 'MZ-PKG-302',
+    clientName: 'Reem Al-Zadjali',
+    clientPhone: '+968 9711 8890',
+    titleEn: 'Royal Bridal Couture 4-Session Journey',
+    titleAr: 'باقة العروس الملكية (٤ جلسات متكاملة)',
+    totalSessions: 4,
+    remainingSessions: 3,
+    walletBalance: 210,
+    expiryDate: '2027-03-31',
+  },
+  {
+    id: 'pkg-3',
+    packageCode: 'MZ-PKG-303',
+    clientName: 'Maha Al-Busaidi',
+    clientPhone: '+968 9820 1140',
+    titleEn: 'Omani Royal Hammam Sanctuary Pass (5x)',
+    titleAr: 'باقة الحمام العُماني الملكي (٥ جلسات)',
+    totalSessions: 5,
+    remainingSessions: 2,
+    walletBalance: 68,
+    expiryDate: '2027-05-15',
+  },
+];
+
+const INITIAL_CAMPAIGNS: readonly SalonAutomationCampaign[] = [
+  {
+    id: 'cmp-1',
+    channel: 'WhatsApp',
+    titleEn: '24h Appointment Confirmation & Location Pin',
+    titleAr: 'تأكيد الموعد قبل ٢٤ ساعة وموقع الفرع عبر واتساب',
+    audienceEn: 'All Confirmed Tomorrow Bookings',
+    audienceAr: 'جميع حجوزات الغد المؤكدة',
+    sentCount: 38,
+    lastTriggered: 'Today · 09:00',
+  },
+  {
+    id: 'cmp-2',
+    channel: 'WhatsApp',
+    titleEn: '6-Week Balayage & Root Gloss Refresher',
+    titleAr: 'تذكير تجديد البالياج ولمعة الشعر بعد ٦ أسابيع',
+    audienceEn: 'Emerald & Gold Colour Clients',
+    audienceAr: 'عميلات الصبغة من فئة الزمرد والذهبية',
+    sentCount: 64,
+    lastTriggered: 'Yesterday · 18:15',
+  },
+  {
+    id: 'cmp-3',
+    channel: 'SMS',
+    titleEn: 'Post-Ritual 5-Star Review & Referral Reward',
+    titleAr: 'رسالة تقييم الخدمة ومكافأة ترشيح الصديقات',
+    audienceEn: 'Completed Checkout Guests',
+    audienceAr: 'العميلات بعد إتمام الفاتورة',
+    sentCount: 112,
+    lastTriggered: 'Auto-Triggered on POS Checkout',
   },
 ];
 
 @Injectable({ providedIn: 'root' })
 export class SalonInstanceStore {
   readonly config = SALON_INSTANCE_CONFIG;
+  readonly services = signal<readonly SalonServiceItem[]>(INITIAL_SERVICES);
+  readonly stylists = signal<readonly SalonStylist[]>(INITIAL_STYLISTS);
   readonly appointments = signal<readonly SalonAppointment[]>(INITIAL_APPOINTMENTS);
+  readonly waitlist = signal<readonly SalonWaitlistEntry[]>(INITIAL_WAITLIST);
   readonly clients = signal<readonly SalonClientRecord[]>(INITIAL_CLIENTS);
   readonly receipts = signal<readonly SalonPosReceipt[]>(INITIAL_RECEIPTS);
+  readonly inventory = signal<readonly SalonInventoryItem[]>(INITIAL_INVENTORY);
+  readonly packages = signal<readonly SalonVipPackage[]>(INITIAL_PACKAGES);
+  readonly campaigns = signal<readonly SalonAutomationCampaign[]>(INITIAL_CAMPAIGNS);
+
   readonly lastBookedRef = signal<string | null>(null);
+  readonly lastActionBanner = signal<string | null>(null);
   readonly dbStatus = signal<'connected-live' | 'connected-schema-pending' | 'local-preview'>(
     'local-preview',
   );
@@ -351,6 +601,54 @@ export class SalonInstanceStore {
     this.receipts()
       .reduce((sum, item) => sum + item.netTotal, 0)
       .toFixed(3),
+  );
+
+  readonly todayVatTotal = computed(() =>
+    this.receipts()
+      .reduce((sum, item) => sum + item.vatAmount, 0)
+      .toFixed(3),
+  );
+
+  readonly cashDrawerBalance = computed(() => {
+    const cashSales = this.receipts()
+      .filter((r) => r.method === 'Cash')
+      .reduce((sum, item) => sum + item.netTotal, 0);
+    return (this.config.openingFloat + cashSales).toFixed(3);
+  });
+
+  readonly cardCollectedTotal = computed(() =>
+    this.receipts()
+      .filter((r) => r.method === 'Card' || r.method === 'Split')
+      .reduce((sum, item) => sum + item.netTotal, 0)
+      .toFixed(3),
+  );
+
+  readonly lowStockCount = computed(
+    () => this.inventory().filter((item) => item.stockQty <= item.reorderLevel).length,
+  );
+
+  readonly inventoryValuation = computed(() =>
+    this.inventory()
+      .reduce((sum, item) => sum + item.stockQty * item.unitPrice, 0)
+      .toFixed(3),
+  );
+
+  readonly totalCommissionPool = computed(() =>
+    this.stylists()
+      .reduce((sum, st) => sum + (st.revenueToday * st.commissionPercent) / 100, 0)
+      .toFixed(3),
+  );
+
+  readonly branchBreakdown = computed(() =>
+    this.config.branches.map((branch) => {
+      const branchApts = this.appointments().filter((a) => a.branch === branch);
+      const total = branchApts.reduce((sum, a) => sum + a.price, 0);
+      return {
+        branch,
+        count: branchApts.length,
+        revenue: total.toFixed(3),
+      };
+    }),
   );
 
   constructor() {
@@ -426,11 +724,9 @@ export class SalonInstanceStore {
     source: 'online' | 'staff';
   }): SalonAppointment {
     const service =
-      this.config.services.find((item) => item.code === input.serviceCode) ??
-      this.config.services[0]!;
+      this.services().find((item) => item.code === input.serviceCode) ?? this.services()[0]!;
     const stylist =
-      this.config.stylists.find((item) => item.id === input.stylistId) ??
-      this.config.stylists[0]!;
+      this.stylists().find((item) => item.id === input.stylistId) ?? this.stylists()[0]!;
     const nextNumber = 1046 + this.appointments().length;
     const refCode = `MZ-${nextNumber}`;
     const created: SalonAppointment = {
@@ -453,6 +749,7 @@ export class SalonInstanceStore {
     };
     this.appointments.update((list) => [created, ...list]);
     this.lastBookedRef.set(refCode);
+    this.lastActionBanner.set(`Booking ${refCode} confirmed for ${created.clientName}`);
 
     if (this.canUseRemoteSupabase()) {
       void fetch(`${this.config.supabaseProjectUrl}/rest/v1/salon_appointments`, {
@@ -511,6 +808,69 @@ export class SalonInstanceStore {
     }
   }
 
+  addWaitlistEntry(input: {
+    clientName: string;
+    clientPhone: string;
+    branch: string;
+    serviceCode: string;
+    preferredWindow: string;
+    notes: string;
+  }): void {
+    if (!input.clientName.trim()) return;
+    const service =
+      this.services().find((item) => item.code === input.serviceCode) ?? this.services()[0]!;
+    const entry: SalonWaitlistEntry = {
+      id: `wl-${Date.now()}`,
+      clientName: input.clientName.trim(),
+      clientPhone: input.clientPhone.trim() || '+968 9000 0000',
+      branch: input.branch,
+      serviceCode: service.code,
+      serviceEn: service.nameEn,
+      serviceAr: service.nameAr,
+      preferredWindow: input.preferredWindow || '16:30 – 19:30',
+      notes: input.notes.trim(),
+      status: 'waiting',
+    };
+    this.waitlist.update((list) => [entry, ...list]);
+    this.lastActionBanner.set(`${entry.clientName} added to VIP Waitlist`);
+    if (this.canUseRemoteSupabase()) {
+      void fetch(`${this.config.supabaseProjectUrl}/rest/v1/salon_waitlist`, {
+        method: 'POST',
+        headers: this.headers(),
+        body: JSON.stringify({
+          client_name: entry.clientName,
+          client_phone: entry.clientPhone,
+          branch_name: entry.branch,
+          service_code: entry.serviceCode,
+          service_name_en: entry.serviceEn,
+          service_name_ar: entry.serviceAr,
+          preferred_window: entry.preferredWindow,
+          notes: entry.notes,
+          status: 'waiting',
+        }),
+      }).catch(() => undefined);
+    }
+  }
+
+  promoteWaitlistToBooking(waitlistId: string): void {
+    const target = this.waitlist().find((w) => w.id === waitlistId);
+    if (!target || target.status === 'promoted') return;
+    this.waitlist.update((list) =>
+      list.map((w) => (w.id === waitlistId ? { ...w, status: 'promoted' } : w)),
+    );
+    this.createBooking({
+      branch: target.branch,
+      serviceCode: target.serviceCode,
+      stylistId: this.stylists()[0]?.id ?? 'st-noura',
+      date: '2026-11-09',
+      time: '18:00',
+      clientName: target.clientName,
+      clientPhone: target.clientPhone,
+      notes: `Promoted from Waitlist (${target.preferredWindow}) · ${target.notes}`,
+      source: 'staff',
+    });
+  }
+
   addClientFormula(input: {
     name: string;
     phone: string;
@@ -530,6 +890,7 @@ export class SalonInstanceStore {
       patchTestVerified: true,
     };
     this.clients.update((list) => [record, ...list]);
+    this.lastActionBanner.set(`Formula saved for ${record.name}`);
     if (this.canUseRemoteSupabase()) {
       void fetch(`${this.config.supabaseProjectUrl}/rest/v1/salon_clients`, {
         method: 'POST',
@@ -548,20 +909,27 @@ export class SalonInstanceStore {
     }
   }
 
+  toggleClientPatchTest(id: string): void {
+    this.clients.update((list) =>
+      list.map((c) => (c.id === id ? { ...c, patchTestVerified: !c.patchTestVerified } : c)),
+    );
+  }
+
   checkoutPos(input: {
     clientName: string;
     serviceCode: string;
     includeRetailMask: boolean;
     applyVipDiscount: boolean;
-    method: 'Card' | 'Cash' | 'Split';
+    method: 'Card' | 'Cash' | 'Split' | 'Wallet';
   }): SalonPosReceipt {
     const service =
-      this.config.services.find((item) => item.code === input.serviceCode) ??
-      this.config.services[0]!;
+      this.services().find((item) => item.code === input.serviceCode) ?? this.services()[0]!;
     const retailPrice = input.includeRetailMask ? 21 : 0;
-    const subtotal = service.price + retailPrice;
+    const subtotal = Number((service.price + retailPrice).toFixed(3));
     const discount = input.applyVipDiscount ? Number((subtotal * 0.1).toFixed(3)) : 0;
-    const netTotal = Number((subtotal - discount).toFixed(3));
+    const taxable = Number((subtotal - discount).toFixed(3));
+    const vatAmount = Number((taxable * this.config.vatRate).toFixed(3));
+    const netTotal = Number((taxable + vatAmount).toFixed(3));
     const receiptNo = `MZ-INV-0${81 + this.receipts().length}`;
     const receipt: SalonPosReceipt = {
       id: `rc-${Date.now()}`,
@@ -570,16 +938,22 @@ export class SalonInstanceStore {
       summaryEn:
         service.nameEn +
         (input.includeRetailMask ? ' + Botanical Mask' : '') +
-        (input.applyVipDiscount ? ' (VIP -10%)' : ''),
+        (input.applyVipDiscount ? ' (VIP -10%)' : '') +
+        ' · +5% VAT',
       summaryAr:
         service.nameAr +
         (input.includeRetailMask ? ' + قناع نباتي' : '') +
-        (input.applyVipDiscount ? ' (خصم VIP ١٠٪)' : ''),
+        (input.applyVipDiscount ? ' (خصم VIP ١٠٪)' : '') +
+        ' · +٥٪ ضريبة',
+      subtotal,
+      discount,
+      vatAmount,
       netTotal,
       method: input.method,
       time: 'Just now',
     };
     this.receipts.update((list) => [receipt, ...list]);
+    this.lastActionBanner.set(`Receipt ${receiptNo} (${netTotal.toFixed(3)} OMR) issued`);
     if (this.canUseRemoteSupabase()) {
       void fetch(`${this.config.supabaseProjectUrl}/rest/v1/salon_invoices`, {
         method: 'POST',
@@ -589,6 +963,9 @@ export class SalonInstanceStore {
           client_name: receipt.clientName,
           summary_en: receipt.summaryEn,
           summary_ar: receipt.summaryAr,
+          subtotal: receipt.subtotal,
+          discount: receipt.discount,
+          vat_amount: receipt.vatAmount,
           net_total: receipt.netTotal,
           payment_method: receipt.method,
           time_label: receipt.time,
@@ -598,10 +975,219 @@ export class SalonInstanceStore {
     return receipt;
   }
 
+  adjustInventoryStock(id: string, delta: number): void {
+    let targetSku = '';
+    let updatedQty = 0;
+    this.inventory.update((list) =>
+      list.map((item) => {
+        if (item.id !== id) return item;
+        updatedQty = Math.max(0, item.stockQty + delta);
+        targetSku = item.sku;
+        return { ...item, stockQty: updatedQty };
+      }),
+    );
+    if (targetSku && this.canUseRemoteSupabase()) {
+      void fetch(
+        `${this.config.supabaseProjectUrl}/rest/v1/salon_inventory?sku=eq.${encodeURIComponent(targetSku)}`,
+        {
+          method: 'PATCH',
+          headers: this.headers(),
+          body: JSON.stringify({ stock_qty: updatedQty }),
+        },
+      ).catch(() => undefined);
+    }
+  }
+
+  addInventoryItem(input: {
+    nameEn: string;
+    nameAr: string;
+    category: 'Backbar' | 'Retail';
+    supplier: string;
+    stockQty: number;
+    unitPrice: number;
+  }): void {
+    if (!input.nameEn.trim()) return;
+    const sku = `MZ-INV-0${this.inventory().length + 1}`;
+    const item: SalonInventoryItem = {
+      id: `inv-${Date.now()}`,
+      sku,
+      nameEn: input.nameEn.trim(),
+      nameAr: input.nameAr.trim() || input.nameEn.trim(),
+      category: input.category,
+      supplier: input.supplier.trim() || 'Miznora Atelier Supply',
+      stockQty: Math.max(1, Number(input.stockQty) || 10),
+      reorderLevel: 5,
+      unitPrice: Math.max(1, Number(input.unitPrice) || 18),
+    };
+    this.inventory.update((list) => [item, ...list]);
+    this.lastActionBanner.set(`Inventory SKU ${sku} added`);
+    if (this.canUseRemoteSupabase()) {
+      void fetch(`${this.config.supabaseProjectUrl}/rest/v1/salon_inventory`, {
+        method: 'POST',
+        headers: this.headers(),
+        body: JSON.stringify({
+          sku: item.sku,
+          name_en: item.nameEn,
+          name_ar: item.nameAr,
+          category: item.category,
+          supplier: item.supplier,
+          stock_qty: item.stockQty,
+          reorder_level: item.reorderLevel,
+          unit_price: item.unitPrice,
+        }),
+      }).catch(() => undefined);
+    }
+  }
+
+  redeemPackageSession(id: string): void {
+    let targetCode = '';
+    let nextRemaining = 0;
+    this.packages.update((list) =>
+      list.map((pkg) => {
+        if (pkg.id !== id || pkg.remainingSessions <= 0) return pkg;
+        nextRemaining = pkg.remainingSessions - 1;
+        targetCode = pkg.packageCode;
+        return { ...pkg, remainingSessions: nextRemaining };
+      }),
+    );
+    if (targetCode) {
+      this.lastActionBanner.set(`Session redeemed on ${targetCode} (${nextRemaining} remaining)`);
+      if (this.canUseRemoteSupabase()) {
+        void fetch(
+          `${this.config.supabaseProjectUrl}/rest/v1/salon_packages?package_code=eq.${encodeURIComponent(targetCode)}`,
+          {
+            method: 'PATCH',
+            headers: this.headers(),
+            body: JSON.stringify({ remaining_sessions: nextRemaining }),
+          },
+        ).catch(() => undefined);
+      }
+    }
+  }
+
+  issueVipPackage(input: {
+    clientName: string;
+    clientPhone: string;
+    titleEn: string;
+    titleAr: string;
+    totalSessions: number;
+    walletBalance: number;
+  }): void {
+    if (!input.clientName.trim()) return;
+    const packageCode = `MZ-PKG-${301 + this.packages().length}`;
+    const total = Math.max(1, Number(input.totalSessions) || 6);
+    const created: SalonVipPackage = {
+      id: `pkg-${Date.now()}`,
+      packageCode,
+      clientName: input.clientName.trim(),
+      clientPhone: input.clientPhone.trim() || '+968 9000 0000',
+      titleEn: input.titleEn.trim() || 'Miznora Emerald VIP Ritual Pass',
+      titleAr: input.titleAr.trim() || 'باقة نخبة الزمرد الملكية',
+      totalSessions: total,
+      remainingSessions: total,
+      walletBalance: Math.max(0, Number(input.walletBalance) || 100),
+      expiryDate: '2027-12-31',
+    };
+    this.packages.update((list) => [created, ...list]);
+    this.lastActionBanner.set(`VIP Package ${packageCode} issued to ${created.clientName}`);
+    if (this.canUseRemoteSupabase()) {
+      void fetch(`${this.config.supabaseProjectUrl}/rest/v1/salon_packages`, {
+        method: 'POST',
+        headers: this.headers(),
+        body: JSON.stringify({
+          package_code: created.packageCode,
+          client_name: created.clientName,
+          client_phone: created.clientPhone,
+          title_en: created.titleEn,
+          title_ar: created.titleAr,
+          total_sessions: created.totalSessions,
+          remaining_sessions: created.remainingSessions,
+          wallet_balance: created.walletBalance,
+          expiry_date: created.expiryDate,
+        }),
+      }).catch(() => undefined);
+    }
+  }
+
+  cycleStaffFloorStatus(id: string): void {
+    const order: readonly SalonStylist['floorStatus'][] = ['onFloor', 'inSuite', 'onBreak'];
+    this.stylists.update((list) =>
+      list.map((st) => {
+        if (st.id !== id) return st;
+        const next = order[(order.indexOf(st.floorStatus) + 1) % order.length] ?? 'onFloor';
+        return { ...st, floorStatus: next };
+      }),
+    );
+  }
+
+  addServiceItem(input: {
+    categoryEn: string;
+    nameEn: string;
+    nameAr: string;
+    durationMin: number;
+    price: number;
+  }): void {
+    if (!input.nameEn.trim()) return;
+    const code =
+      input.nameEn
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-') +
+      '-' +
+      (this.services().length + 1);
+    const created: SalonServiceItem = {
+      code,
+      categoryEn: input.categoryEn || 'Hair & Colour',
+      categoryAr: 'خدمات ميزنورا المميزة',
+      nameEn: input.nameEn.trim(),
+      nameAr: input.nameAr.trim() || input.nameEn.trim(),
+      durationMin: Math.max(15, Number(input.durationMin) || 60),
+      price: Math.max(1, Number(input.price) || 35),
+    };
+    this.services.update((list) => [...list, created]);
+    this.lastActionBanner.set(`New service "${created.nameEn}" added to catalogue`);
+    if (this.canUseRemoteSupabase()) {
+      void fetch(`${this.config.supabaseProjectUrl}/rest/v1/salon_services`, {
+        method: 'POST',
+        headers: this.headers(),
+        body: JSON.stringify({
+          code: created.code,
+          category_en: created.categoryEn,
+          category_ar: created.categoryAr,
+          name_en: created.nameEn,
+          name_ar: created.nameAr,
+          duration_min: created.durationMin,
+          price: created.price,
+        }),
+      }).catch(() => undefined);
+    }
+  }
+
+  triggerAutomationCampaign(id: string): void {
+    this.campaigns.update((list) =>
+      list.map((cmp) =>
+        cmp.id === id
+          ? {
+              ...cmp,
+              sentCount: cmp.sentCount + 12,
+              lastTriggered: 'Just sent (+12 WhatsApp/SMS dispatched)',
+            }
+          : cmp,
+      ),
+    );
+  }
+
   resetDemoState(): void {
+    this.services.set(INITIAL_SERVICES);
+    this.stylists.set(INITIAL_STYLISTS);
     this.appointments.set(INITIAL_APPOINTMENTS);
+    this.waitlist.set(INITIAL_WAITLIST);
     this.clients.set(INITIAL_CLIENTS);
     this.receipts.set(INITIAL_RECEIPTS);
+    this.inventory.set(INITIAL_INVENTORY);
+    this.packages.set(INITIAL_PACKAGES);
+    this.campaigns.set(INITIAL_CAMPAIGNS);
     this.lastBookedRef.set(null);
+    this.lastActionBanner.set(null);
   }
 }
