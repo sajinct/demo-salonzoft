@@ -1,0 +1,119 @@
+.admin-shell {
+  padding-block: 24px 72px;
+}
+.admin-topbar {
+  margin-bottom: 22px;
+  padding: 18px 22px;
+}
+.admin-layout {
+  display: grid;
+  grid-template-columns: 270px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+.admin-sidebar {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 18px 14px;
+  box-shadow: 0 12px 28px #003b2608;
+  position: sticky;
+  top: 18px;
+}
+.sidebar-heading {
+  padding: 0 10px 10px;
+  margin: 0 0 8px;
+  border-bottom: 1px solid var(--line);
+}
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.sidebar-link {
+  width: 100%;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--charcoal);
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  text-align: start;
+  transition: background 0.15s ease;
+}
+.sidebar-link:hover {
+  background: #f5f7f2;
+}
+.sidebar-link.active-sidebar-link {
+  background: var(--emerald);
+  color: #ffffff;
+  border-color: var(--emerald);
+}
+.sidebar-icon {
+  width: 20px;
+  text-align: center;
+  font-size: 14px;
+}
+.sidebar-label {
+  flex: 1;
+}
+.sidebar-badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 99px;
+  background: #edf2e9;
+  color: var(--emerald);
+}
+.sidebar-link.active-sidebar-link .sidebar-badge {
+  background: #ffffff26;
+  color: #ffffff;
+}
+.sidebar-footer {
+  margin-top: 14px;
+  padding: 12px 10px 4px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 11px;
+}
+.admin-content {
+  min-width: 0;
+}
+.admin-content h2 {
+  font-size: 24px;
+  margin: 6px 0 8px;
+}
+.admin-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 8px;
+}
+@media (max-width: 960px) {
+  .admin-layout {
+    grid-template-columns: 1fr;
+  }
+  .admin-sidebar {
+    position: static;
+  }
+  .sidebar-nav {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .admin-kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 600px) {
+  .sidebar-nav,
+  .admin-kpi-grid {
+    grid-template-columns: 1fr;
+  }
+}

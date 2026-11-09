@@ -122,6 +122,19 @@ export interface SalonAutomationCampaign {
 
 export type SalonRole = 'owner' | 'manager' | 'receptionist' | 'professional' | 'finance_viewer';
 
+export type AdminMenuId =
+  | 'dashboard'
+  | 'calendar'
+  | 'waitlist'
+  | 'pos'
+  | 'crm'
+  | 'catalogue'
+  | 'inventory'
+  | 'packages'
+  | 'workforce'
+  | 'marketing'
+  | 'users';
+
 export interface SalonUserAccount {
   readonly id: string;
   readonly email: string;
@@ -1300,9 +1313,7 @@ export class SalonInstanceStore {
     this.lastActionBanner.set(null);
   }
 
-  canAccessTab(
-    tab: 'calendar' | 'pos' | 'crm' | 'inventory' | 'packages' | 'workforce' | 'users',
-  ): boolean {
+  canAccessTab(tab: AdminMenuId): boolean {
     const user = this.currentUser();
     if (!user) return false;
     switch (user.role) {
@@ -1311,12 +1322,30 @@ export class SalonInstanceStore {
       case 'manager':
         return tab !== 'users';
       case 'receptionist':
-        return tab === 'calendar' || tab === 'pos' || tab === 'crm' || tab === 'packages';
+        return (
+          tab === 'calendar' ||
+          tab === 'waitlist' ||
+          tab === 'pos' ||
+          tab === 'crm' ||
+          tab === 'packages'
+        );
       case 'professional':
         return tab === 'calendar' || tab === 'crm';
       case 'finance_viewer':
-        return tab === 'pos' || tab === 'inventory' || tab === 'workforce';
+        return (
+          tab === 'dashboard' ||
+          tab === 'pos' ||
+          tab === 'inventory' ||
+          tab === 'workforce'
+        );
     }
+  }
+
+  defaultMenuForRole(role: SalonRole): AdminMenuId {
+    if (role === 'owner' || role === 'manager' || role === 'finance_viewer') {
+      return 'dashboard';
+    }
+    return 'calendar';
   }
 
   changeUserRole(userId: string, role: SalonRole): void {
