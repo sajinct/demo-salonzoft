@@ -269,3 +269,29 @@ values
   ('MZ-PKG-302', 'Reem Al-Zadjali', '+968 9711 8890', 'Royal Bridal Couture 4-Session Journey', 'باقة العروس الملكية (٤ جلسات متكاملة)', 4, 3, 210.000, '2027-03-31'),
   ('MZ-PKG-303', 'Maha Al-Busaidi', '+968 9820 1140', 'Omani Royal Hammam Sanctuary Pass (5x)', 'باقة الحمام العُماني الملكي (٥ جلسات)', 5, 2, 68.000, '2027-05-15')
 on conflict (package_code) do nothing;
+
+insert into public.salon_clients (full_name, phone, tier_en, tier_ar, visits_count, colour_formula, care_notes, patch_test_verified)
+select 'Sheikha Al-Lawati', '+968 9901 4422', 'Miznora Emerald VIP · 18 Visits', 'نخبة الزمرد ميزنورا · ١٨ زيارة', 18, '7.1 Ash Blonde (40g) + 8.31 Champagne (20g) · 20 Vol · 35m', 'Patch test verified · Prefers silent appointment & cardamom tea', true
+where not exists (select 1 from public.salon_clients where phone = '+968 9901 4422');
+
+insert into public.salon_clients (full_name, phone, tier_en, tier_ar, visits_count, colour_formula, care_notes, patch_test_verified)
+select 'Alya Al-Harthi', '+968 9912 3401', 'Miznora Gold Member · 9 Visits', 'عضوية ذهبية ميزنورا · ٩ زيارات', 9, '9.13 Beige Blonde Gloss (30g) + Clear (15g) · 10 Vol · 20m', 'Sensitive scalp — apply soothing botanical oil barrier', true
+where not exists (select 1 from public.salon_clients where phone = '+968 9912 3401');
+
+insert into public.salon_clients (full_name, phone, tier_en, tier_ar, visits_count, colour_formula, care_notes, patch_test_verified)
+select 'Maha Al-Busaidi', '+968 9820 1140', 'Miznora Emerald VIP · 14 Visits', 'نخبة الزمرد ميزنورا · ١٤ زيارة', 14, 'Botanical Keratin Pure + Argan Sealant · 190°C Silk Press', 'Prefers Suite A private room', true
+where not exists (select 1 from public.salon_clients where phone = '+968 9820 1140');
+
+insert into public.salon_waitlist (client_name, client_phone, branch_name, service_code, service_name_en, service_name_ar, preferred_window, notes, status)
+select 'Fatima Al-Hinai', '+968 9632 4500', 'Miznora · Al Mouj Muscat', 'balayage-gloss', 'Miznora Signature Balayage & Gloss', 'بالياج ولمعة ميزنورا المميزة', '16:30 – 19:30', 'Flexible if Noura has an evening opening', 'waiting'
+where not exists (select 1 from public.salon_waitlist where client_phone = '+968 9632 4500');
+
+insert into public.salon_waitlist (client_name, client_phone, branch_name, service_code, service_name_en, service_name_ar, preferred_window, notes, status)
+select 'Lujain Al-Rawahi', '+968 9411 7720', 'Miznora · Seeb Boulevard', 'hydra-scalp', 'Hydra-Glow Facial & Scalp Spa', 'فيشل النضارة وسبا فروة الرأس', '15:00 – 18:00', 'VIP Emerald member priority alert', 'waiting'
+where not exists (select 1 from public.salon_waitlist where client_phone = '+968 9411 7720');
+
+insert into public.salon_invoices (receipt_no, client_name, summary_en, summary_ar, subtotal, discount, vat_amount, net_total, payment_method, time_label)
+values
+  ('MZ-INV-081', 'Sheikha Al-Lawati', 'Miznora Signature Balayage & Gloss + Botanical Mask (VIP -10%) · +5% VAT', 'بالياج ولمعة ميزنورا + قناع نباتي (خصم VIP ١٠٪) · +٥٪ ضريبة', 65.000, 6.500, 2.925, 61.425, 'Split', '09:45'),
+  ('MZ-INV-082', 'Dana Al-Shanfari', 'Hydra-Glow Facial & Scalp Spa · +5% VAT', 'فيشل النضارة وسبا فروة الرأس · +٥٪ ضريبة', 52.000, 0.000, 2.600, 54.600, 'Card', '10:20')
+on conflict (receipt_no) do nothing;
