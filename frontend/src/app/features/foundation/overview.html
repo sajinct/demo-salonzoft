@@ -12,11 +12,39 @@
       <button mat-flat-button type="button" (click)="scrollTo('booking')">
         {{ text().explore }} <span aria-hidden="true">↓</span>
       </button>
+      <button mat-button type="button" (click)="scrollTo('client-portal')">
+        My VIP Account ↓
+      </button>
       <a mat-button [routerLink]="salon.currentUser() ? '/admin' : '/login'">
-        {{ salon.currentUser() ? 'Open Admin Area →' : 'Staff & Admin Login →' }}
+        {{ salon.currentUser() ? 'Open Staff Portal →' : 'Staff Login →' }}
       </a>
       <a mat-button routerLink="/guide">{{ text().learn }}</a>
     </div>
+    @if (data.mode === 'demo') {
+      <div class="client-quick-nav" aria-label="Miznora Client Website Navigation">
+        <button type="button" class="quick-nav-chip" (click)="scrollTo('booking')">
+          Services &amp; Booking
+        </button>
+        <button type="button" class="quick-nav-chip" (click)="scrollTo('specialists')">
+          Master Specialists
+        </button>
+        <button type="button" class="quick-nav-chip" (click)="scrollTo('packages')">
+          VIP Packages &amp; Bridal
+        </button>
+        <button type="button" class="quick-nav-chip" (click)="scrollTo('boutique')">
+          Retail Boutique
+        </button>
+        <button type="button" class="quick-nav-chip" (click)="scrollTo('waitlist')">
+          Priority Waitlist
+        </button>
+        <button type="button" class="quick-nav-chip" (click)="scrollTo('client-portal')">
+          My VIP Account
+        </button>
+        <button type="button" class="quick-nav-chip" (click)="scrollTo('demo-users')">
+          Switch Demo User
+        </button>
+      </div>
+    }
   </div>
   <div class="brand-art">
     <div class="product-window">
@@ -28,9 +56,9 @@
               ? salon.config.clientBrandAr
               : salon.config.clientBrandEn
           }}</strong>
-          <small class="window-sub">demo.salonzoft.com · Powered by Salonzoft</small>
+          <small class="window-sub">Al Mouj Muscat · Shatti Al Qurum · Barka</small>
         </div>
-        <span class="window-badge">Miznora Live</span>
+        <span class="window-badge">Open Today</span>
       </div>
       <div class="preview-tabs" role="tablist">
         <button
@@ -65,9 +93,11 @@
               <div class="schedule-row">
                 <span class="slot-time" dir="ltr">{{ item.time }}</span>
                 <div class="slot-info">
-                  <strong>{{ item.clientName }}</strong>
+                  <strong>{{
+                    language.locale() === 'ar' ? item.serviceAr : item.serviceEn
+                  }}</strong>
                   <small
-                    >{{ language.locale() === 'ar' ? item.serviceAr : item.serviceEn }} ·
+                    >{{ item.branch }} ·
                     {{ language.locale() === 'ar' ? item.stylistAr : item.stylistEn }}</small
                   >
                 </div>
@@ -96,26 +126,22 @@
             </div>
             <div class="pos-line">
               <span>{{ text().previewPosItem1 }}</span>
-              <strong dir="ltr">44.000</strong>
+              <strong dir="ltr">52.000</strong>
             </div>
             <div class="pos-line">
               <span>{{ text().previewPosItem2 }}</span>
-              <strong dir="ltr">21.000</strong>
+              <strong dir="ltr">55.000</strong>
             </div>
             <div class="pos-line discount">
               <span>{{ text().previewPosItem3 }}</span>
-              <strong dir="ltr">-6.500</strong>
-            </div>
-            <div class="pos-line">
-              <span>5% Oman VAT</span>
-              <strong dir="ltr">+2.925</strong>
+              <strong dir="ltr">-10% VIP</strong>
             </div>
             <div class="pos-total">
               <div>
                 <span>{{ text().previewPosTotal }}</span>
                 <small>{{ text().previewPosMethod }}</small>
               </div>
-              <strong dir="ltr">61.425 OMR</strong>
+              <strong dir="ltr">VIP Suite</strong>
             </div>
           </div>
         } @else {
@@ -143,7 +169,14 @@
 </section>
 
 @if (data.mode === 'demo') {
-  <!-- 1. MIZNORA PUBLIC CLIENT ONLINE BOOKING & SERVICE MENU (PUBLIC CUSTOMER VIEW) -->
+  @if (salon.lastActionBanner(); as banner) {
+    <div class="client-live-toast" role="status">
+      <span>✦ {{ banner }}</span>
+      <button type="button" (click)="salon.lastActionBanner.set(null)">Dismiss</button>
+    </div>
+  }
+
+  <!-- 1. SIGNATURE SERVICE MENU & INSTANT ONLINE BOOKING -->
   <section id="booking" class="portal-section">
     <div class="section-head">
       <p class="eyebrow">{{ text().bookingEyebrow }}</p>
@@ -275,74 +308,446 @@
     </div>
   </section>
 
-  <!-- 2. STUDIO PRESET SWITCHER (Preserves E2E test suite) -->
-  <section id="workspace" class="workspace-section">
-    <div>
-      <p class="eyebrow">MIZNORA / {{ text().selected }}</p>
-      <h2>{{ text().context }}</h2>
-      <p class="muted">{{ text().contextIntro }}</p>
-      <div class="studio-kpi-grid">
-        <div class="kpi-box">
-          <span>{{ text().statBookings }}</span>
-          <strong dir="ltr">{{ salon.appointments().length }}</strong>
+  <!-- 2. MASTER SPECIALISTS & ARTISANS DIRECTORY -->
+  <section id="specialists" class="portal-section">
+    <div class="section-head">
+      <p class="eyebrow">MIZNORA MASTER ARTISANS · AL MOUJ, QURUM &amp; BARKA</p>
+      <h2>Meet Our Master Colourists, Spa Therapists &amp; Bridal Specialists</h2>
+      <p class="muted">
+        Select your preferred specialist below to pre-assign your chair or private VIP suite in the
+        online booking calendar.
+      </p>
+    </div>
+    <div class="specialists-grid">
+      @for (st of salon.stylists(); track st.id) {
+        <article class="specialist-card">
+          <div class="specialist-top">
+            <span class="specialist-avatar">{{ st.nameEn.charAt(0) }}</span>
+            <div>
+              <h3>{{ language.locale() === 'ar' ? st.nameAr : st.nameEn }}</h3>
+              <span class="specialist-role">{{
+                language.locale() === 'ar' ? st.roleAr : st.roleEn
+              }}</span>
+            </div>
+            <span class="floor-pill" [attr.data-floor]="st.floorStatus">
+              {{
+                st.floorStatus === 'onFloor'
+                  ? 'Available Today'
+                  : st.floorStatus === 'inSuite'
+                    ? 'In Private Suite'
+                    : 'Short Break'
+              }}
+            </span>
+          </div>
+          <div class="specialist-meta">
+            <div>
+              <span>Station / Suite</span>
+              <strong>{{
+                language.locale() === 'ar' ? st.chairLabelAr : st.chairLabelEn
+              }}</strong>
+            </div>
+            <div>
+              <span>Today’s Hours</span>
+              <strong dir="ltr">{{ st.shiftHours }}</strong>
+            </div>
+            <div>
+              <span>Sanctuary Branch</span>
+              <strong>{{ st.branch }}</strong>
+            </div>
+          </div>
+          <button
+            type="button"
+            class="svc-pick-btn specialist-book-btn"
+            (click)="chooseStylistForBooking(st.id)"
+          >
+            Book with {{ st.nameEn.split(' ')[0] }} →
+          </button>
+        </article>
+      }
+    </div>
+  </section>
+
+  <!-- 3. VIP BRIDAL JOURNEYS, MEMBERSHIPS & PREPAID WALLETS -->
+  <section id="packages" class="portal-section">
+    <div class="section-head">
+      <p class="eyebrow">MIZNORA EMERALD MEMBERSHIP &amp; BRIDAL COUTURE</p>
+      <h2>VIP Ritual Passes, Bridal Suites &amp; Prepaid OMR Wallets</h2>
+      <p class="muted">
+        Enjoy priority suite access, multi-session treatment bundles, and family-shareable OMR
+        wallets across all 3 Miznora branches.
+      </p>
+    </div>
+    <div class="packages-showcase-grid">
+      @for (pkg of salon.packages(); track pkg.id) {
+        <article class="vip-package-card">
+          <div class="vip-pkg-header">
+            <span class="pkg-code-pill" dir="ltr">{{ pkg.packageCode }}</span>
+            <span class="pkg-expiry" dir="ltr">Valid until {{ pkg.expiryDate }}</span>
+          </div>
+          <h3>{{ language.locale() === 'ar' ? pkg.titleAr : pkg.titleEn }}</h3>
+          <p class="vip-pkg-holder">
+            Member: <strong>{{ pkg.clientName }}</strong> (<span dir="ltr">{{
+              pkg.clientPhone
+            }}</span
+            >)
+          </p>
+          <div class="vip-pkg-stats">
+            <div>
+              <span>Sessions Remaining</span>
+              <strong dir="ltr">{{ pkg.remainingSessions }} / {{ pkg.totalSessions }}</strong>
+            </div>
+            <div>
+              <span>Prepaid OMR Wallet</span>
+              <strong dir="ltr">{{ pkg.walletBalance.toFixed(3) }} OMR</strong>
+            </div>
+          </div>
+          <div class="vip-pkg-actions">
+            <button type="button" class="svc-pick-btn" (click)="scrollTo('booking-form')">
+              Book Using Package →
+            </button>
+          </div>
+        </article>
+      }
+    </div>
+  </section>
+
+  <!-- 4. MIZNORA HOME-CARE RETAIL BOUTIQUE -->
+  <section id="boutique" class="portal-section">
+    <div class="section-head">
+      <p class="eyebrow">MIZNORA ATELIER RETAIL BOUTIQUE</p>
+      <h2>Reserve Luxury Hair &amp; Spa Home-Care Products</h2>
+      <p class="muted">
+        Reserve authentic Omani frankincense masks, organic argan elixirs, and bond-repair home
+        care for pickup at your next appointment.
+      </p>
+    </div>
+    <div class="boutique-grid">
+      @for (item of salon.inventory(); track item.id) {
+        <article class="boutique-card">
+          <div class="svc-top">
+            <span class="svc-cat">{{ item.category }}</span>
+            <span class="svc-duration" dir="ltr">Code: {{ item.sku }}</span>
+          </div>
+          <h3>{{ language.locale() === 'ar' ? item.nameAr : item.nameEn }}</h3>
+          <p class="boutique-supplier">{{ item.supplier }}</p>
+          <div class="svc-bottom">
+            <div>
+              <strong dir="ltr">{{ item.unitPrice.toFixed(3) }} OMR</strong>
+              <small class="stock-note" dir="ltr"> · {{ item.stockQty }} available</small>
+            </div>
+            <button
+              type="button"
+              class="svc-pick-btn"
+              [disabled]="item.stockQty <= 0"
+              (click)="salon.reserveRetailItem(item.id)"
+            >
+              {{ item.stockQty > 0 ? 'Reserve for Pickup' : 'Sold Out' }}
+            </button>
+          </div>
+        </article>
+      }
+    </div>
+  </section>
+
+  <!-- 5. PRIORITY VIP SMART WAITLIST -->
+  <section id="waitlist" class="portal-section">
+    <div class="section-head">
+      <p class="eyebrow">PRIORITY VIP WAITLIST</p>
+      <h2>Looking for a Prime Evening or Weekend Appointment?</h2>
+      <p class="muted">
+        Join our VIP Waitlist. The moment a chair or private suite opens at Al Mouj, Shatti Al
+        Qurum, or Barka, our concierge team notifies you via WhatsApp.
+      </p>
+    </div>
+    <div class="booking-layout">
+      <form
+        class="salon-form-card"
+        [formGroup]="waitlistForm"
+        (ngSubmit)="submitClientWaitlist()"
+      >
+        <h3>Join Priority VIP Waitlist</h3>
+        @if (waitlistJoinedBanner(); as wlMsg) {
+          <div class="booking-alert" role="status">
+            <strong>✦ {{ wlMsg }}</strong>
+          </div>
+        }
+        <div class="form-row-2">
+          <label class="field-box">
+            <span>Preferred Branch</span>
+            <select formControlName="branch">
+              @for (b of salon.config.branches; track b) {
+                <option [value]="b">{{ b }}</option>
+              }
+            </select>
+          </label>
+          <label class="field-box">
+            <span>Requested Ritual / Service</span>
+            <select formControlName="serviceCode">
+              @for (svc of salon.services(); track svc.code) {
+                <option [value]="svc.code">
+                  {{ language.locale() === 'ar' ? svc.nameAr : svc.nameEn }}
+                </option>
+              }
+            </select>
+          </label>
         </div>
-        <div class="kpi-box">
-          <span>{{ text().statTicket }}</span>
-          <strong dir="ltr">{{ salon.todayRevenue() }} OMR</strong>
+        <div class="form-row-3">
+          <label class="field-box">
+            <span>Preferred Time Window</span>
+            <input type="text" formControlName="preferredWindow" />
+          </label>
+          <label class="field-box">
+            <span>Your Full Name</span>
+            <input type="text" formControlName="clientName" />
+          </label>
+          <label class="field-box">
+            <span>WhatsApp Phone</span>
+            <input type="tel" formControlName="clientPhone" />
+          </label>
         </div>
-        <div class="kpi-box">
-          <span>{{ text().statRetention }}</span>
-          <strong dir="ltr">{{ presetMeta().retention }}</strong>
-        </div>
-        <div class="kpi-box">
-          <span>{{ text().statChairs }}</span>
-          <strong dir="ltr">{{ presetMeta().chairs }}</strong>
+        <label class="field-box">
+          <span>Special Preferences</span>
+          <input type="text" formControlName="notes" />
+        </label>
+        <button mat-flat-button type="submit">Join VIP Waitlist</button>
+      </form>
+
+      <div class="waitlist-live-column">
+        <h3>Current Priority Queue ({{ salon.waitlist().length }})</h3>
+        <div class="staff-appointments-list">
+          @for (wl of salon.waitlist(); track wl.id) {
+            <article class="staff-apt-card">
+              <div class="apt-time-col">
+                <strong dir="ltr">{{ wl.preferredWindow }}</strong>
+                <small>{{ wl.status === 'promoted' ? 'Confirmed' : 'Waiting' }}</small>
+              </div>
+              <div class="apt-main-col">
+                <strong>{{ wl.clientName }}</strong>
+                <p>
+                  {{ language.locale() === 'ar' ? wl.serviceAr : wl.serviceEn }} · {{ wl.branch }}
+                </p>
+                @if (wl.notes) {
+                  <span class="apt-note">{{ wl.notes }}</span>
+                }
+              </div>
+            </article>
+          }
         </div>
       </div>
     </div>
-    <div class="workspace-card">
-      @if (data.workspaces.length) {
-        <mat-form-field appearance="outline"
-          ><mat-label>{{ text().workspace }}</mat-label
-          ><mat-select [formControl]="selection" (selectionChange)="select()">
-            @for (workspace of data.workspaces; track workspace.id) {
-              <mat-option [value]="workspace.id">{{
-                language.locale() === 'ar' ? workspace.arabicName : workspace.name
-              }}</mat-option>
-            }
-          </mat-select></mat-form-field
-        >
-        @if (data.selected(); as workspace) {
-          <div class="workspace-name" aria-live="polite">
-            <span class="monogram" aria-hidden="true">{{ workspace.name.charAt(0) }}</span>
+  </section>
+
+  <!-- 6. MY VIP CLIENT ACCOUNT PORTAL -->
+  <section id="client-portal" class="portal-section">
+    @if (salon.activeClientUser(); as client) {
+      <div class="client-portal-banner">
+        <div class="client-profile-header">
+          <div class="client-identity">
+            <span class="client-lg-avatar">{{ client.name.charAt(0) }}</span>
             <div>
-              <h3>{{ language.locale() === 'ar' ? workspace.arabicName : workspace.name }}</h3>
-              <span lang="ar" dir="rtl">{{ workspace.arabicName }}</span>
+              <p class="eyebrow">MIZNORA VIP CLIENT PORTAL · MY ACCOUNT</p>
+              <h2>Welcome back, {{ client.name }}</h2>
+              <div class="client-meta-chips">
+                <span class="chip-emerald">{{
+                  language.locale() === 'ar' ? client.tierAr : client.tierEn
+                }}</span>
+                <span class="chip-neutral" dir="ltr">{{ client.phone }}</span>
+                <span class="chip-gold">
+                  {{
+                    client.patchTestVerified
+                      ? '✓ Patch Test Verified'
+                      : '⚠ Patch Test Required'
+                  }}
+                </span>
+              </div>
             </div>
-            <span class="sample-tag">demo.salonzoft.com</span>
           </div>
-          <dl>
-            <div>
-              <dt>{{ text().locations }}</dt>
-              <dd dir="ltr">{{ workspace.locations.join(' · ') }}</dd>
-            </div>
-            <div>
-              <dt>{{ text().timezone }}</dt>
-              <dd dir="ltr">{{ workspace.timeZone }}</dd>
-            </div>
-            <div>
-              <dt>{{ text().currency }}</dt>
-              <dd dir="ltr">{{ workspace.currency }}</dd>
-            </div>
-          </dl>
-        }
-        <div class="card-bottom">
-          <p>{{ text().memory }}</p>
-          <button mat-button (click)="reset()">{{ text().reset }}</button>
+          <div class="client-quick-actions">
+            <button mat-flat-button type="button" (click)="scrollTo('booking-form')">
+              Book New Ritual →
+            </button>
+            <button mat-stroked-button type="button" (click)="scrollTo('demo-users')">
+              Switch Client Profile
+            </button>
+          </div>
         </div>
-      } @else {
-        <p role="status">{{ text().empty }}</p>
-      }
+
+        <div class="client-portal-grid">
+          <article class="client-portal-card">
+            <span class="card-kicker">MY COLOUR &amp; TREATMENT RECORD</span>
+            <h3>Saved Atelier Formula</h3>
+            <p class="formula-highlight">{{ client.formula }}</p>
+            <div class="hospitality-note">
+              <strong>Hospitality &amp; Care Preferences:</strong>
+              <p>{{ client.notes }}</p>
+            </div>
+          </article>
+
+          <article class="client-portal-card">
+            <span class="card-kicker">MY VIP PACKAGES &amp; PREPAID WALLET</span>
+            <h3>Membership &amp; Session Balance</h3>
+            @if (salon.activeClientPackages().length) {
+              @for (pkg of salon.activeClientPackages(); track pkg.id) {
+                <div class="client-pkg-box">
+                  <div class="pkg-top-line">
+                    <strong>{{
+                      language.locale() === 'ar' ? pkg.titleAr : pkg.titleEn
+                    }}</strong>
+                    <span class="pkg-code-pill" dir="ltr">{{ pkg.packageCode }}</span>
+                  </div>
+                  <div class="pkg-metrics">
+                    <div>
+                      <span>Remaining Sessions</span>
+                      <strong dir="ltr"
+                        >{{ pkg.remainingSessions }} / {{ pkg.totalSessions }}</strong
+                      >
+                    </div>
+                    <div>
+                      <span>Prepaid Wallet</span>
+                      <strong dir="ltr">{{ pkg.walletBalance.toFixed(3) }} OMR</strong>
+                    </div>
+                    <div>
+                      <span>Valid Until</span>
+                      <strong dir="ltr">{{ pkg.expiryDate }}</strong>
+                    </div>
+                  </div>
+                </div>
+              }
+            } @else {
+              <p class="muted">No active package on this profile yet.</p>
+            }
+          </article>
+
+          <article class="client-portal-card">
+            <span class="card-kicker"
+              >MY APPOINTMENTS ({{ salon.activeClientAppointments().length }})</span
+            >
+            <h3>Scheduled Visits</h3>
+            @if (salon.activeClientAppointments().length) {
+              <div class="client-apt-mini-list">
+                @for (apt of salon.activeClientAppointments(); track apt.id) {
+                  <div class="client-apt-mini">
+                    <div>
+                      <strong
+                        >{{ language.locale() === 'ar' ? apt.serviceAr : apt.serviceEn }}</strong
+                      >
+                      <small
+                        >{{ apt.branch }} ·
+                        {{ language.locale() === 'ar' ? apt.stylistAr : apt.stylistEn }}</small
+                      >
+                    </div>
+                    <div class="apt-mini-right" dir="ltr">
+                      <span class="apt-ref-tag">{{ apt.refCode }} · {{ apt.time }}</span>
+                      <strong>{{ apt.price.toFixed(3) }} OMR</strong>
+                    </div>
+                  </div>
+                }
+              </div>
+            } @else {
+              <p class="muted">
+                No appointments booked under {{ client.name }} yet. Use the booking form above to
+                schedule one!
+              </p>
+            }
+          </article>
+        </div>
+      </div>
+    }
+  </section>
+
+  <!-- 7. DEMO USERS SWITCHER (CLIENT VIP PROFILES & STAFF PORTAL ACCESS) -->
+  <section id="demo-users" class="portal-section demo-users-hub">
+    <div class="section-head">
+      <p class="eyebrow">MIZNORA ACCOUNTS · VIP CLIENTS &amp; STAFF</p>
+      <h2>Switch Client VIP Profile or Sign In as Staff</h2>
+      <p class="muted">
+        Select a VIP Client profile below to view their personal appointments, colour formulas, and
+        prepaid wallet—or sign in to the Miznora Staff &amp; Management Portal.
+      </p>
+    </div>
+
+    <div class="demo-users-columns">
+      <div class="demo-users-panel">
+        <div class="panel-header-row">
+          <div>
+            <span class="panel-tag">VIP CLIENT PROFILES</span>
+            <h3>Miznora VIP Members</h3>
+          </div>
+          <span class="active-indicator"
+            >Signed in: <strong>{{ salon.activeClientUser().name }}</strong></span
+          >
+        </div>
+        <p class="panel-sub">
+          Click a client below to view their personalized VIP Account Portal and pre-fill your
+          details in the booking form.
+        </p>
+        <div class="demo-user-cards">
+          @for (client of salon.clients(); track client.id) {
+            <button
+              type="button"
+              class="demo-account-btn"
+              [class.active-demo-account]="salon.activeClientUser().id === client.id"
+              (click)="selectClientDemoAccount(client.id)"
+            >
+              <span class="account-avatar">{{ client.name.charAt(0) }}</span>
+              <div class="account-body">
+                <div class="account-title-row">
+                  <strong>{{ client.name }}</strong>
+                  <span class="tier-pill">{{
+                    language.locale() === 'ar' ? client.tierAr : client.tierEn
+                  }}</span>
+                </div>
+                <small dir="ltr">{{ client.phone }} · {{ client.visits }} Visits</small>
+                <p class="account-formula">{{ client.formula }}</p>
+              </div>
+              <span class="account-cta">
+                {{ salon.activeClientUser().id === client.id ? '✓ Active' : 'Select →' }}
+              </span>
+            </button>
+          }
+        </div>
+      </div>
+
+      <div class="demo-users-panel staff-panel">
+        <div class="panel-header-row">
+          <div>
+            <span class="panel-tag gold-tag">STAFF &amp; MANAGEMENT</span>
+            <h3>Salon Team Sign-In</h3>
+          </div>
+          <a routerLink="/login" class="staff-login-link">Staff Login Page →</a>
+        </div>
+        <p class="panel-sub">
+          Select a team member below for 1-click access to the Miznora Staff &amp; Admin Portal.
+        </p>
+        <div class="demo-user-cards">
+          @for (u of salon.users(); track u.id) {
+            <button
+              type="button"
+              class="demo-account-btn staff-account-btn"
+              (click)="loginAsDemoStaffRole(u.role)"
+            >
+              <span class="account-avatar staff-avatar">{{
+                u.role.slice(0, 2).toUpperCase()
+              }}</span>
+              <div class="account-body">
+                <div class="account-title-row">
+                  <strong>{{
+                    language.locale() === 'ar' ? u.fullNameAr : u.fullNameEn
+                  }}</strong>
+                  <span class="role-badge">{{ u.role.toUpperCase() }}</span>
+                </div>
+                <small dir="ltr"
+                  >{{ u.email }} · Password: <code>{{ u.demoPassword }}</code></small
+                >
+                <p class="account-formula">
+                  {{ language.locale() === 'ar' ? u.titleAr : u.titleEn }} · {{ u.branchScope }}
+                </p>
+              </div>
+              <span class="account-cta">Open Portal →</span>
+            </button>
+          }
+        </div>
+      </div>
     </div>
   </section>
 }

@@ -1,34 +1,14 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
 import { DATA_ACCESS } from '../../core/data-access';
 import { Language } from '../../core/language';
-import { SalonInstanceStore } from '../../core/salon-config';
-
-interface StudioPresetMeta {
-  readonly chairs: string;
-  readonly retention: string;
-}
-
-const DEFAULT_PRESET_META: StudioPresetMeta = {
-  chairs: '12 Chairs · 3 VIP Suites',
-  retention: '89%',
-};
-
-const PRESET_META: Record<string, StudioPresetMeta> = {
-  'fictional-noura': DEFAULT_PRESET_META,
-  'fictional-waha': {
-    chairs: '8 Spa Suites · 2 Hammams',
-    retention: '93%',
-  },
-};
+import { SalonInstanceStore, type SalonRole } from '../../core/salon-config';
 
 @Component({
   selector: 'app-overview',
-  imports: [RouterLink, ReactiveFormsModule, MatButtonModule, MatFormFieldModule, MatSelectModule],
+  imports: [RouterLink, ReactiveFormsModule, MatButtonModule],
   templateUrl: './overview.html',
   styleUrl: './overview.scss',
 })
@@ -36,14 +16,12 @@ export class Overview {
   protected readonly data = inject(DATA_ACCESS);
   protected readonly language = inject(Language);
   protected readonly salon = inject(SalonInstanceStore);
+  private readonly router = inject(Router);
   protected readonly text = this.language.copy;
 
   protected readonly previewTab = signal<'calendar' | 'pos' | 'crm'>('calendar');
   protected readonly selectedCategory = signal<string>('All');
-
-  protected readonly selection = new FormControl(this.data.selected()?.id ?? '', {
-    nonNullable: true,
-  });
+  protected readonly waitlistJoinedBanner = signal<string | null>(null);
 
   protected readonly bookingForm = new FormGroup({
     branch: new FormControl(this.salon.config.branches[0] ?? 'Miznora · Al Mouj Muscat', {
@@ -57,9 +35,22 @@ export class Overview {
     }),
     date: new FormControl('2026-11-09', { nonNullable: true }),
     time: new FormControl('16:30', { nonNullable: true }),
-    clientName: new FormControl('', { nonNullable: true }),
-    clientPhone: new FormControl('', { nonNullable: true }),
+    clientName: new FormControl(this.salon.activeClientUser().name, { nonNullable: true }),
+    clientPhone: new FormControl(this.salon.activeClientUser().phone, { nonNullable: true }),
     notes: new FormControl('', { nonNullable: true }),
+  });
+
+  protected readonly waitlistForm = new FormGroup({
+    branch: new FormControl(this.salon.config.branches[0] ?? 'Miznora · Al Mouj Muscat', {
+      nonNullable: true,
+    }),
+    serviceCode: new FormControl(this.salon.services()[0]?.code ?? 'balayage-gloss', {
+      nonNullable: true,
+    }),
+    preferredWindow: new FormControl('17:00 – 20:00 (Evening Slot)', { nonNullable: true }),
+    clientName: new FormControl(this.salon.activeClientUser().name, { nonNullable: true }),
+    clientPhone: new FormControl(this.salon.activeClientUser().phone, { nonNullable: true }),
+    notes: new FormControl('Notify via WhatsApp if an earlier chair opens', { nonNullable: true }),
   });
 
   protected readonly serviceCategories = computed(() => {
@@ -74,11 +65,6 @@ export class Overview {
     const cat = this.selectedCategory();
     if (cat === 'All') return this.salon.services();
     return this.salon.services().filter((s) => s.categoryEn === cat);
-  });
-
-  protected readonly presetMeta = computed<StudioPresetMeta>(() => {
-    const id = this.data.selected()?.id ?? 'fictional-noura';
-    return PRESET_META[id] ?? DEFAULT_PRESET_META;
   });
 
   protected setPreviewTab(tab: 'calendar' | 'pos' | 'crm'): void {
@@ -98,6 +84,28 @@ export class Overview {
     this.scrollTo('booking-form');
   }
 
+  protected chooseStylistForBooking(stylistId: string): void {
+    this.bookingForm.controls.stylistId.setValue(stylistId);
+    this.scrollTo('booking-form');
+  }
+
+  protected selectClientDemoAccount(clientId: string): void {
+    const selected = this.salon.selectClientDemoUser(clientId);
+    if (selected) {
+      this.bookingForm.controls.clientName.setValue(selected.name);
+      this.bookingForm.controls.clientPhone.setValue(selected.phone);
+      this.waitlistForm.controls.clientName.setValue(selected.name);
+      this.waitlistForm.controls.clientPhone.setValue(selected.phone);
+    }
+  }
+
+  protected loginAsDemoStaffRole(role: SalonRole): void {
+    const loggedIn = this.salon.quickLoginAsRole(role);
+    if (loggedIn) {
+      void this.router.navigateByUrl('/admin');
+    }
+  }
+
   protected submitOnlineBooking(): void {
     const raw = this.bookingForm.getRawValue();
     this.salon.createBooking({
@@ -111,18 +119,21 @@ export class Overview {
       notes: raw.notes,
       source: 'online',
     });
-    this.bookingForm.controls.clientName.setValue('');
-    this.bookingForm.controls.clientPhone.setValue('');
     this.bookingForm.controls.notes.setValue('');
   }
 
-  protected select(): void {
-    this.data.selectWorkspace(this.selection.value);
-  }
-
-  protected reset(): void {
-    this.data.reset();
-    this.salon.resetDemoState();
-    this.selection.setValue(this.data.selected()?.id ?? '');
+  protected submitClientWaitlist(): void {
+    const raw = this.waitlistForm.getRawValue();
+    this.salon.addWaitlistEntry({
+      clientName: raw.clientName,
+      clientPhone: raw.clientPhone,
+      branch: raw.branch,
+      serviceCode: raw.serviceCode,
+      preferredWindow: raw.preferredWindow,
+      notes: raw.notes,
+    });
+    this.waitlistJoinedBanner.set(
+      `Added ${raw.clientName || 'Guest'} to the Miznora Priority VIP Waitlist (${raw.preferredWindow})`,
+    );
   }
 }

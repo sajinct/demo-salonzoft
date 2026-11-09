@@ -11,8 +11,8 @@ import { SalonInstanceStore, SalonRole } from '../../core/salon-config';
   template: `
     <section class="login-shell">
       <div class="login-top-bar">
-        <a mat-button routerLink="/">← Back to Miznora Public Booking</a>
-        <span class="window-badge">Supabase RBAC · kbjyknzcneuhizhxkbwk</span>
+        <a mat-button routerLink="/">← Back to Miznora Salon &amp; Spa</a>
+        <span class="window-badge">Miznora Staff Portal</span>
       </div>
 
       <div class="login-grid">
@@ -56,9 +56,7 @@ import { SalonInstanceStore, SalonRole } from '../../core/salon-config';
 
           <div class="login-meta">
             <small class="muted">
-              ✦ Connected to <code>public.salon_users</code> in Supabase
-              (<code>kbjyknzcneuhizhxkbwk</code>). Default demo password:
-              <code>Miznora2026!</code>
+              ✦ Default staff demo password: <code>Miznora2026!</code>
             </small>
           </div>
         </form>

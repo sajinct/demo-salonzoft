@@ -694,12 +694,35 @@ export class SalonInstanceStore {
   readonly campaigns = signal<readonly SalonAutomationCampaign[]>(INITIAL_CAMPAIGNS);
   readonly users = signal<readonly SalonUserAccount[]>(INITIAL_USERS);
   readonly currentUser = signal<SalonUserAccount | null>(null);
+  readonly activeClientUser = signal<SalonClientRecord>(INITIAL_CLIENTS[0]!);
   readonly authError = signal<string | null>(null);
 
   readonly lastBookedRef = signal<string | null>(null);
   readonly lastActionBanner = signal<string | null>(null);
   readonly dbStatus = signal<'connected-live' | 'connected-schema-pending' | 'local-preview'>(
     'local-preview',
+  );
+
+  readonly activeClientAppointments = computed(() => {
+    const client = this.activeClientUser();
+    return this.appointments().filter(
+      (a) =>
+        a.clientName.toLowerCase() === client.name.toLowerCase() ||
+        a.clientPhone === client.phone,
+    );
+  });
+
+  readonly activeClientPackages = computed(() => {
+    const client = this.activeClientUser();
+    return this.packages().filter(
+      (p) =>
+        p.clientName.toLowerCase() === client.name.toLowerCase() ||
+        p.clientPhone === client.phone,
+    );
+  });
+
+  readonly retailItems = computed(() =>
+    this.inventory().filter((item) => item.category === 'Retail'),
   );
 
   readonly todayRevenue = computed(() =>
@@ -1415,6 +1438,27 @@ export class SalonInstanceStore {
     }
   }
 
+  selectClientDemoUser(clientId: string): SalonClientRecord | null {
+    const match = this.clients().find((c) => c.id === clientId) ?? this.clients()[0] ?? null;
+    if (match) {
+      this.activeClientUser.set(match);
+      this.lastActionBanner.set(
+        `Client VIP Portal switched to ${match.name} (${match.tierEn})`,
+      );
+    }
+    return match;
+  }
+
+  reserveRetailItem(id: string): void {
+    const item = this.inventory().find((i) => i.id === id);
+    if (!item || item.stockQty <= 0) return;
+    this.adjustInventoryStock(id, -1);
+    const client = this.activeClientUser();
+    this.lastActionBanner.set(
+      `Reserved "${item.nameEn}" (${item.unitPrice.toFixed(3)} OMR) for ${client.name}`,
+    );
+  }
+
   resetDemoState(): void {
     this.services.set(INITIAL_SERVICES);
     this.stylists.set(INITIAL_STYLISTS);
@@ -1427,6 +1471,7 @@ export class SalonInstanceStore {
     this.campaigns.set(INITIAL_CAMPAIGNS);
     this.users.set(INITIAL_USERS);
     this.currentUser.set(null);
+    this.activeClientUser.set(INITIAL_CLIENTS[0]!);
     this.authError.set(null);
     this.lastBookedRef.set(null);
     this.lastActionBanner.set(null);
