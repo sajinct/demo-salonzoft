@@ -1,5 +1,5 @@
 -- ============================================================================
--- MIZNORA SALON & SPA (demo.salonzoft.in) — SUPABASE SQL SCHEMA & SEED
+-- MIZNORA SALON & SPA (demo.salonzoft.com) — SUPABASE SQL SCHEMA & SEED
 -- Supabase Project: https://supabase.com/dashboard/project/kbjyknzcneuhizhxkbwk/sql/new
 -- ============================================================================
 

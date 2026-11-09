@@ -90,7 +90,7 @@ export const SALON_INSTANCE_CONFIG: SingleSalonConfig = {
   instanceId: 'miznora-demo',
   clientBrandEn: 'Miznora Salon & Spa',
   clientBrandAr: 'ميزنورا للصالون والسبا',
-  domain: 'demo.salonzoft.in',
+  domain: 'demo.salonzoft.com',
   taglineEn: 'Miznora Luxury Hair, Bridal & Wellness Spa · Powered by Salonzoft',
   taglineAr: 'ميزنورا للفخامة في العناية بالشعر والعرائس والسبا · يعمل بنظام سالونزوفت',
   currency: 'OMR',
